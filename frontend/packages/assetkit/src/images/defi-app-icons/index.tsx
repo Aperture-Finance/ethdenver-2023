@@ -1,0 +1,11 @@
+export { CompoundIcon } from './compound';
+export { FranciumIcon } from './francium';
+export { HomuraIcon } from './homura';
+export { OrcaIcon } from './orca';
+export { PangolinIcon } from './pangolin';
+export { RadiumIcon } from './radium';
+export { SpiritSwapIcon } from './spirit-swap';
+export { SpookySwapIcon } from './spooky-swap';
+export { TraderJoeIcon } from './trader-joe';
+export { TulipIcon } from './tulip';
+export { UniswapIcon } from './uniswap';
