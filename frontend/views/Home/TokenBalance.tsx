@@ -1,8 +1,14 @@
 import { ERC20TokenMap } from "@/config/token/tokenMap";
 import { getTokenAddress, getstrategyAddress } from "@/config/contracts";
-import { useNetwork } from "wagmi";
+import { useNetwork, useProvider, useSigner } from "wagmi";
 import { useFetchUserToken } from "@/hooks/useFetchUserToken";
 import { utils } from "ethers";
+import { approve } from "@/transactions/tokenApproval";
+
+import { ethers } from "ethers";
+import ERC20ABI from "@/config/ABI/ERC20ABI.json";
+import { MAX_UINT256 } from "@/config/constant";
+import { useContractWrite, usePrepareContractWrite } from "wagmi";
 
 export const TokensBalance = () => {
   return (
@@ -29,6 +35,21 @@ const TokenBalance = (props: { ticker: string }) => {
       address,
       contractAddress
     );
+
+    const { config } = usePrepareContractWrite({
+      address: address,
+      abi: ERC20ABI,
+      functionName: "approve",
+      args: [contractAddress, MAX_UINT256],
+    });
+    const {
+      data: approveData,
+      isLoading: isApproveLoading,
+      isSuccess: isApproveSuccess,
+      write,
+    } = useContractWrite(config);
+    console.log(approveData, isApproveLoading, isApproveSuccess);
+
     return (
       <div>
         <div>Key: {ticker}</div>
@@ -37,9 +58,17 @@ const TokenBalance = (props: { ticker: string }) => {
           <div>
             balance:{" "}
             {utils.formatUnits(data?.balanceBN, ERC20TokenMap[ticker].decimals)}{" "}
-            {ticker}{" "}<br/>
+            {ticker} <br />
             approved:{" "}
-            {utils.formatUnits(data?.allowanceBN, ERC20TokenMap[ticker].decimals)}{" "}
+            {utils.formatUnits(
+              data?.allowanceBN,
+              ERC20TokenMap[ticker].decimals
+            )}{" "}
+            <button disabled={!write} onClick={() => write?.()}>
+              {" "}
+              approve {ticker}
+              {}
+            </button>
           </div>
         ) : error ? (
           <div>{error.message}</div>
@@ -53,4 +82,25 @@ const TokenBalance = (props: { ticker: string }) => {
   }
 
   return <></>;
+};
+
+const ApprovalButtonContext = (props: {
+  tokenAddress: `0x${string}`;
+  contractAddress: string;
+}) => {
+  const { config } = usePrepareContractWrite({
+    address: props.tokenAddress,
+    abi: ERC20ABI,
+    functionName: "approve",
+    args: [props.contractAddress, MAX_UINT256],
+  });
+  const { data, isLoading, isSuccess, write } = useContractWrite(config);
+  console.log(data);
+  if (isLoading) {
+    return <div>Loading...</div>;
+  } else if (isSuccess) {
+    return <div>Approved</div>;
+  } else {
+    return <div>Failed </div>;
+  }
 };
