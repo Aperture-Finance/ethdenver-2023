@@ -6,8 +6,9 @@ import { ButtonGroupsProps } from "./types";
 const Box = styled(Number)<{ selected?: boolean }>`
   border-radius: 12px;
   font-size: 16px;
-  background-color: ${({ selected }) => (selected ? "#e1e1e1" : "#f9f9f9")};
-  border: 1px solid #e1e1e1;
+  background-color: ${({ selected, theme }) =>
+    selected ? theme.colors.gray2 : theme.colors.gray};
+  border: 1px solid ${({ theme }) => theme.colors.gray2};
   color: black;
   width: 40px;
   justify-content: center;
@@ -17,7 +18,7 @@ const Box = styled(Number)<{ selected?: boolean }>`
   align-items: center;
   cursor: pointer;
   &:hover {
-    background-color: #f1f1f1;
+    background-color: ${({ theme }) => theme.colors.gray1};
     transition: background-color 0.1s ease-in-out;
   }
 `;

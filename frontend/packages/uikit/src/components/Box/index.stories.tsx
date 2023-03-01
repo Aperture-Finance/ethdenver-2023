@@ -7,7 +7,7 @@ export default {
 export const Default: React.FC = () => {
   return (
     <>
-      <Box>default button</Box>
+      <Box>box</Box>
     </>
   );
 };

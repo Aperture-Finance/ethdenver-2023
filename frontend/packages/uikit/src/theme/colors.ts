@@ -1,15 +1,12 @@
 import { Colors } from "./types";
 
 export const baseColors = {
-  dark: "#666D85",
-  darkBlue: "#161B7B",
-  blue: "#424BCE",
-  lightBlue: "#379FFF",
-  yellow: "#FFCF01",
-  orange: "#FFAF29",
-  purple: "#903982",
   white: "#FFFFFF",
-  black: "#000000"
+  black: "#000000",
+  gray:"#f9f9f9",
+  gray1:"#f1f1f1",
+  gray2:"#e1e1e1",
+  error:'red',
 };
 
 export const lightColors: Colors = {

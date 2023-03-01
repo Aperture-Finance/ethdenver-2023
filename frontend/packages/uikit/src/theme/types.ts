@@ -24,28 +24,25 @@ export type Gradients = {
   violet: string;
   lightBlue: string;
   bluePurple: string;
-  yellow:string;
+  yellow: string;
   yellowRed: string;
 };
 
 export type Colors = {
-  dark: string;
-  darkBlue: string;
-  blue: string;
-  lightBlue: string;
-  yellow: string;
-  orange: string;
-  purple: string;
   white: string;
   black: string;
+  gray: string;
+  gray1: string;
+  gray2: string;
+  error: string;
 
   // going to get deleted
   textAlt: string;
   textDisabled: string;
   success: string;
-  unselected:string;
-  backgroundSwitch:string;
-  buttonOutline:string;
+  unselected: string;
+  backgroundSwitch: string;
+  buttonOutline: string;
 
   crab: string;
   bull: string;
