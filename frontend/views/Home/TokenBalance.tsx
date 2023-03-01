@@ -1,5 +1,5 @@
 import { ERC20TokenMap } from "@/config/token/tokenMap";
-import { getTokenAddress } from "@/config/contracts";
+import { getTokenAddress, getstrategyAddress } from "@/config/contracts";
 import { useNetwork } from "wagmi";
 import { useFetchUserToken } from "@/hooks/useFetchUserToken";
 import { utils } from "ethers";
@@ -12,7 +12,7 @@ export const TokensBalance = () => {
       {Object.keys(ERC20TokenMap)
         .filter((key: string) => !ERC20TokenMap[key].native)
         .map((key: string) => (
-          <TokenBalance ticker={key} key={key}/>
+          <TokenBalance ticker={key} key={key} />
         ))}
     </div>
   );
@@ -24,7 +24,11 @@ const TokenBalance = (props: { ticker: string }) => {
 
   if (chain && chain.id && ERC20TokenMap[ticker]) {
     const address = getTokenAddress(ticker, chain.id);
-    const { data, isLoading, error } = useFetchUserToken(address);
+    const contractAddress = getstrategyAddress("limitOrder", chain.id);
+    const { data, isLoading, error } = useFetchUserToken(
+      address,
+      contractAddress
+    );
     return (
       <div>
         <div>Key: {ticker}</div>
@@ -33,7 +37,9 @@ const TokenBalance = (props: { ticker: string }) => {
           <div>
             balance:{" "}
             {utils.formatUnits(data?.balanceBN, ERC20TokenMap[ticker].decimals)}{" "}
-            {ticker}{" "}
+            {ticker}{" "}<br/>
+            approved:{" "}
+            {utils.formatUnits(data?.allowanceBN, ERC20TokenMap[ticker].decimals)}{" "}
           </div>
         ) : error ? (
           <div>{error.message}</div>

@@ -28,39 +28,41 @@ import { providers } from "@0xsequence/multicall";
 //   });
 // }
 
-export function useFetchUserToken(tokenAddress: string) {
+// async function getTokenBalance(
+//   provider: providers.MulticallProvider,
+//   walletAddress: string,
+//   tokenAddress: string
+// ) {
+//   const contract = createMulticallContract(tokenAddress, ERC20ABI, provider);
+//   const [balanceBN] = await Promise.all([contract.balanceOf(walletAddress)]);
+//   return { balanceBN: balanceBN };
+// }
+
+export function useFetchUserToken(
+  tokenAddress: string,
+  contractAddress: string
+) {
   const { address: walletAddress, isConnected } = useAccount();
   const { chain } = useNetwork();
 
   return useSWR(`token-${tokenAddress}`, () => {
     if (isConnected && chain && chain.id && walletAddress) {
       const provider = createMulticallProvider(chain.id);
-      return getToken(provider, walletAddress, tokenAddress);
+      return getToken(provider, walletAddress, tokenAddress, contractAddress);
     }
   });
-}
-
-async function getTokenBalance(
-  provider: providers.MulticallProvider,
-  walletAddress: string,
-  tokenAddress: string
-) {
-  const contract = createMulticallContract(tokenAddress, ERC20ABI, provider);
-  const [balanceBN] = await Promise.all([contract.balanceOf(walletAddress)]);
-  return { balanceBN: balanceBN };
 }
 
 async function getToken(
   provider: providers.MulticallProvider,
   walletAddress: string,
-  tokenAddress: string
-  // contactAddress: string
+  tokenAddress: string,
+  contractAddress: string
 ) {
   const contract = createMulticallContract(tokenAddress, ERC20ABI, provider);
-  // const [allowance, balance] = await Promise.all([
-  //   contract.allowance(walletAddress, contactAddress),
-  //   contract.balanceOf(walletAddress),
-  // ]);
-  const [balanceBN] = await Promise.all([contract.balanceOf(walletAddress)]);
-  return { balanceBN: balanceBN };
+  const [allowance, balance] = await Promise.all([
+    contract.allowance(walletAddress, contractAddress),
+    contract.balanceOf(walletAddress),
+  ]);
+  return { allowanceBN: allowance, balanceBN: balance };
 }
