@@ -6,7 +6,7 @@ export default {
 };
 
 export const Default: React.FC = () => {
-  const onChange = (value: string) => {};
+  const onChange = (value: string) => console.log(value);
   const onError = (text: string) => text === "Error";
   return (
     <div style={{width:'80%'}}>
