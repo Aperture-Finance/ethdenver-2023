@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { TextInput } from ".";
 
 export default {
@@ -7,15 +6,16 @@ export default {
 };
 
 export const Default: React.FC = () => {
-  const [showErrMsg, setShowErrMsg] = useState(false);
+  const onChange = (value: string) => {};
+  const onError = (text: string) => text === "Error";
   return (
     <>
       <TextInput
         initialValue={"Error message shown when inputting 'Error'"}
         placeholder={"Error message shown when inputting 'Error'"}
-        showErrMsg={showErrMsg}
+        onChange={onChange}
+        onError={onError}
         errMsg={"Error message here"}
-        onTyping={(event) => setShowErrMsg(event.target.value === "Error")}
       />
     </>
   );

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { TextInputProps } from "./types";
 
@@ -44,18 +44,19 @@ const ErrorMsg = styled.p`
   color: #ff0000;
 `;
 
-const handleChange = (event: any) => {
-  console.log(event.target.value);
-};
-
 const TextInput: React.FC<TextInputProps> = ({
   id = "",
   initialValue = "",
   placeholder = "",
-  onTyping = handleChange,
-  showErrMsg = false,
+  onChange = (value: string) => console.log(value),
+  onError = (value: string) => false,
   errMsg = "",
 }) => {
+  const [showErrMsg, setShowErrMsg] = useState(false);
+  const handleChange = (event: any) => {
+    onChange(event.target.value);
+    setShowErrMsg(onError(event.target.value));
+  };
   return (
     <>
       <div>
@@ -64,8 +65,8 @@ const TextInput: React.FC<TextInputProps> = ({
           type="text"
           defaultValue={initialValue}
           placeholder={placeholder}
+          onChange={handleChange}
           showErrMsg={showErrMsg}
-          onChange={onTyping}
         />
         {showErrMsg && <ErrorMsg>{errMsg}</ErrorMsg>}
       </div>
