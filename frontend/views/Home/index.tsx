@@ -1,11 +1,12 @@
-import Wallet from "@/widgets/Wallet/wallets";
+import Wallet from "@/components/Wallet/wallets";
+
 
 export const Home = () => {
 
   return (
     <div>
+      Connect Wallet:
       <Wallet/>
-    hi
     
     </div>
   );
