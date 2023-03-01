@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import { TextInputProps } from "./types";
 
@@ -7,9 +7,9 @@ const StyledInput = styled.input`
   border-radius: 12px;
   border: 1px solid #e1e1e1;
   height: 20px;
-  padding: 16px 32px;
+  padding: 16px 88px 16px 32px;
   display: block;
-  width: 100%;
+  width: calc(100% - 120px);
   background-color: #f9f9f9;
   :is(:focus, :active) {
     background-color: transparent;
@@ -24,25 +24,37 @@ const StyledInput = styled.input`
   line-height: 100%;
 `;
 
+const Notes = styled.span`
+  text-transform: uppercase;
+  font-size: 22px;
+  position: absolute;
+  right: 16px;
+  top: 14px;
+`;
+
 const TextInput: React.FC<TextInputProps> = ({
   id,
-  initialValue="",
+  initialValue = "",
   placeholder,
   onChange,
   onError,
+  notes,
 }) => {
   const handleChange = (event: any) => {
     onChange(event.target.value);
     onError(event.target.value);
   };
   return (
-    <StyledInput
-      id={id}
-      type="text"
-      defaultValue={initialValue}
-      placeholder={placeholder}
-      onChange={handleChange}
-    />
+    <div style={{position:'relative'}}>
+      <StyledInput
+        id={id}
+        type="text"
+        defaultValue={initialValue}
+        placeholder={placeholder}
+        onChange={handleChange}
+      />
+      <Notes>{notes}</Notes>
+    </div>
   );
 };
 
