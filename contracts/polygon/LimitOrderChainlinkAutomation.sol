@@ -9,6 +9,7 @@ import "@uniswap/v3-core/contracts/libraries/SqrtPriceMath.sol";
 import "@uniswap/v3-core/contracts/libraries/TickMath.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol";
 import "@uniswap/v3-periphery/contracts/libraries/PoolAddress.sol";
+import "@uniswap/v3-periphery/contracts/libraries/LiquidityAmounts.sol";
 
 contract LimitOrderChainlinkAutomation is KeeperCompatibleInterface {
     using SafeCast for uint128;
@@ -103,33 +104,12 @@ contract LimitOrderChainlinkAutomation is KeeperCompatibleInterface {
         ).slot0();
 
         // Find current amount of the two tokens in the liquidity position.
-        int128 liquidityInt128 = liquidity.toInt128();
-        int256 amount0;
-        int256 amount1;
-        if (tick < tickLower) {
-            amount0 = SqrtPriceMath.getAmount0Delta(
-                tickLower.getSqrtRatioAtTick(),
-                tickUpper.getSqrtRatioAtTick(),
-                liquidityInt128
-            );
-        } else if (tick < tickUpper) {
-            amount0 = SqrtPriceMath.getAmount0Delta(
-                sqrtPriceX96,
-                tickUpper.getSqrtRatioAtTick(),
-                liquidityInt128
-            );
-            amount1 = SqrtPriceMath.getAmount1Delta(
-                tickLower.getSqrtRatioAtTick(),
-                sqrtPriceX96,
-                liquidityInt128
-            );
-        } else {
-            amount1 = SqrtPriceMath.getAmount1Delta(
-                tickLower.getSqrtRatioAtTick(),
-                tickUpper.getSqrtRatioAtTick(),
-                liquidityInt128
-            );
-        }
+        (uint256 amount0, uint256 amount1) = LiquidityAmounts.getAmountsForLiquidity(
+            sqrtPriceX96,
+            tickLower.getSqrtRatioAtTick(),
+            tickUpper.getSqrtRatioAtTick(),
+            liquidity
+        );
 
         bool upkeepNeeded;
         if (positionIdToZeroForOne[positionId]) {
