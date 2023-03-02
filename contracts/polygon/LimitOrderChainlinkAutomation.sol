@@ -11,7 +11,7 @@ import "@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.s
 import "@uniswap/v3-periphery/contracts/libraries/PoolAddress.sol";
 
 contract LimitOrderChainlinkAutomation is KeeperCompatibleInterface {
-    using SafeCast for int256;
+    using SafeCast for uint128;
     INonfungiblePositionManager
         internal constant UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER =
         INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
@@ -31,11 +31,8 @@ contract LimitOrderChainlinkAutomation is KeeperCompatibleInterface {
      * has been fulfilled and therefore the underlying liquidity position should
      * be closed.
      * @param checkData specified in the upkeep registration so it is always the
-     * same for a registered upkeep. This encodes two params:
+     * same for a registered upkeep. This encodes the following parameter:
      * - uint256 positionId: the id of the underlying Uniswap V3 position.
-     * - bool zeroForOne: if true, this limit order is swapping token0 for token1.
-     * - address owner: address of the user who set up this limit order.
-     * - TODO: store `zeroForOne` and `owner` in state variables.
      * @return upkeepNeeded boolean to indicate whether the keeper should call
      * performUpkeep or not.
      * @return performData bytes that the keeper should call performUpkeep with, if
@@ -104,31 +101,31 @@ contract LimitOrderChainlinkAutomation is KeeperCompatibleInterface {
         ).slot0();
 
         // Find current amount of the two tokens in the liquidity position.
-        int128 negativeLiquidity = -int256(liquidity).toInt128();
+        int128 liquidityInt128 = liquidity.toInt128();
         int256 amount0;
         int256 amount1;
         if (tick < tickLower) {
-            amount0 = -SqrtPriceMath.getAmount0Delta(
+            amount0 = SqrtPriceMath.getAmount0Delta(
                 TickMath.getSqrtRatioAtTick(tickLower),
                 TickMath.getSqrtRatioAtTick(tickUpper),
-                negativeLiquidity
+                liquidityInt128
             );
         } else if (tick < tickUpper) {
-            amount0 = -SqrtPriceMath.getAmount0Delta(
+            amount0 = SqrtPriceMath.getAmount0Delta(
                 sqrtPriceX96,
                 TickMath.getSqrtRatioAtTick(tickUpper),
-                negativeLiquidity
+                liquidityInt128
             );
-            amount1 = -SqrtPriceMath.getAmount1Delta(
+            amount1 = SqrtPriceMath.getAmount1Delta(
                 TickMath.getSqrtRatioAtTick(tickLower),
                 sqrtPriceX96,
-                negativeLiquidity
+                liquidityInt128
             );
         } else {
-            amount1 = -SqrtPriceMath.getAmount1Delta(
+            amount1 = SqrtPriceMath.getAmount1Delta(
                 TickMath.getSqrtRatioAtTick(tickLower),
                 TickMath.getSqrtRatioAtTick(tickUpper),
-                negativeLiquidity
+                liquidityInt128
             );
         }
 
