@@ -16,8 +16,7 @@ export const Default: React.FC = () => {
         onChange={onChange}
         onError={onError}
         notes="weth"
-        buttonContext={<div>hi</div>}
-        onSubmit={() => console.log("clicked!")}
+        submitButton={<div>hi</div>}
       />
     </div>
   );

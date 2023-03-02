@@ -22,7 +22,7 @@ const DropdownContent = styled.div`
   width: 100%;
   border-radius: 16px;
   background-color: #f9f9f9;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.1);
   padding: 16px 0px;
   z-index: 1;
   visibility: hidden;
