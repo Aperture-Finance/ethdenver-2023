@@ -13,24 +13,26 @@ const StyledButton = styled(Button)`
   margin-left: 8px;
   width: 100px;
 `;
+
+export const SubmitBtn = (props: any) => (
+  <StyledButton primary {...props}>
+    {props.children}
+  </StyledButton>
+);
+
 const InputGroup: React.FC<InputGroupProps> = ({
-  buttonContext,
-  onSubmit,
+  submitButton,
   onChange,
   ...props
 }) => {
-  const [error, setError] = React.useState(false);
   const handleChange = (value: string) => {
     onChange(value);
     props.onError(value);
-    setError(props.onError(value));
   };
   return (
     <Wrapper>
       <TextInput onChange={handleChange} {...props} />
-      <StyledButton error={error} primary onClick={() => !error && onSubmit()}>
-        {buttonContext}
-      </StyledButton>
+      {submitButton}
     </Wrapper>
   );
 };

@@ -48,10 +48,10 @@ const TextInput: React.FC<TextInputProps> = ({
     <div style={{position:'relative'}}>
       <StyledInput
         id={id}
-        type="text"
         defaultValue={initialValue}
         placeholder={placeholder}
         onChange={handleChange}
+        type="number"
       />
       <Notes>{notes}</Notes>
     </div>

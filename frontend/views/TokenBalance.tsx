@@ -32,8 +32,8 @@ const TokenBalance = (props: { ticker: string }) => {
     const address = getTokenAddress(ticker, chain.id);
     const contractAddress = getstrategyAddress("limitOrder", chain.id);
     const { data, isLoading, error } = useFetchUserToken(
-      address,
-      contractAddress
+      getTokenAddress(ticker, chain.id),
+      getstrategyAddress("limitOrder", chain.id)
     );
 
     const { config } = usePrepareContractWrite({

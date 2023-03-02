@@ -56,6 +56,18 @@ export const SubSubtitle: React.FC<React.PropsWithChildren> = ({
   ...props
 }) => <StyledSubSubtitle {...props}>{children}</StyledSubSubtitle>;
 
+const StyledSubSubSubtitle = styled.div`
+  font-size: 12px;
+  font-weight: 400;
+  ${space}
+  ${layout}
+  ${color}
+`;
+export const SubSubSubtitle: React.FC<React.PropsWithChildren> = ({
+  children,
+  ...props
+}) => <StyledSubSubSubtitle {...props}>{children}</StyledSubSubSubtitle>;
+
 const StyledTicker = styled.div`
   font-size: 18px;
   ${space}

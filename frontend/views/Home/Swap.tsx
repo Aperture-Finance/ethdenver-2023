@@ -1,3 +1,8 @@
+import { getstrategyAddress, getTokenAddress } from "@/config/contracts";
+import {
+  useFetchUserToken,
+  useFetchUserTokens,
+} from "@/hooks/useFetchUserToken";
 import {
   ButtonGroups,
   Dropdown,
@@ -7,23 +12,15 @@ import {
   TextInput,
   Title,
 } from "@/packages/uikit/src";
+import { useState } from "react";
 import styled from "styled-components";
+import { useNetwork } from "wagmi";
 import { Arrow } from "./icon/down";
-import { EthIcon } from "./icon/eth";
-import { UsdcIcon } from "./icon/usdc";
+import { TokenList } from "./tokenList";
 
 const Wrapper = styled.div`
   padding: 0px 14px 16px 18px;
   width: calc(100% - 32px);
-`;
-const StyledEthIcon = styled(EthIcon)`
-  width: 30px;
-  height: 30px;
-`;
-
-const StyledUsdcIcon = styled(UsdcIcon)`
-  width: 30px;
-  height: 30px;
 `;
 
 const Grid = styled.div`
@@ -38,53 +35,53 @@ const StyledArrow = styled(Arrow)`
   margin: 0 12px;
 `;
 export const Swap = () => {
-  const TokenList = [
-    {
-      name: "Wrapped Ethereum",
-      ticker: "WETH",
-      icon: <StyledEthIcon id="eth-1" />,
-      balance: 10.23124,
-    },
-    {
-      name: "USD Coin",
-      ticker: "USDC",
-      icon: <StyledUsdcIcon id="usd-2" />,
-      balance: 10032423.23124,
-    },
-  ];
-
+  const [tokenA, setTokenA] = useState<Token | null>(null);
+  const [tokenB, setTokenB] = useState<Token | null>(null);
+  const [ratio, setRatio] = useState<string | null>(null);
+  const [amount, setAmount] = useState<string | null>(null);
+  const getButtonText = () => {
+    if (!(tokenA && tokenB && tokenA.ticker !== tokenB.ticker)) {
+      return "Select Token";
+    } else if (!(ratio && Number(ratio) > 0)) {
+      return "Missing Swap Ratio";
+    } else if (!(amount && Number(amount) > 0)) {
+      return "Missing Deposit Amount";
+    } else if (Number(amount) > Number(tokenA.balance)) {
+      return "Deposit Amount Exceed Balance";
+    } else if (tokenA) {
+      return "Approve";
+    } else {
+      return "Deposit";
+    }
+  };
   return (
     <Wrapper>
       <Subtitle>Deposit:</Subtitle>
       <Dropdown
         key="deposit-dropdown"
         tokenList={TokenList}
-        onSelect={(token: Token, index: number) =>
-          console.log(index, ": ", token.name)
-        }
+        onSelect={(token: Token) => setTokenA(token)}
       />
       <Subtitle>Swap:</Subtitle>
       <Dropdown
         key="swap-dropdown"
         tokenList={TokenList}
-        onSelect={(token: Token, index: number) =>
-          console.log(index, ": ", token.name)
-        }
+        onSelect={(token: Token) => setTokenB(token)}
       />
       <br />
       <Subtitle>Swap Ratio:</Subtitle>
       <Grid>
-        <Title>1 WETH</Title>
-        <StyledArrow/>
+        <Title>1 {tokenA?.ticker ?? "Token"}</Title> {/*@ts-ignore*/}
+        <StyledArrow />
         <TextInput
           id="text-input"
           placeholder="0"
-          onChange={(value: string) => console.log(value)}
+          onChange={(value: string) => setRatio(value)}
           onError={(text: string) => text === "Error"}
-          notes="weth"
+          notes={tokenB?.ticker ?? "Token"}
         />
       </Grid>
-      <br/>
+      <br />
       <Grid>
         <Subtitle>Fee Tier: </Subtitle>
         <ButtonGroups
@@ -97,11 +94,10 @@ export const Swap = () => {
       <InputGroup
         id="text-input"
         placeholder="0"
-        onChange={(value: string) => console.log(value)}
-        onError={(text: string) => text === "Error"}
+        onChange={(value: string) => setAmount(value)}
+        onError={(text: string) => !text}
         notes="weth"
-        buttonContext={<div>Deposit</div>}
-        onSubmit={() => console.log("clicked!")}
+        submitButton={<div>test</div>}
       />
     </Wrapper>
   );

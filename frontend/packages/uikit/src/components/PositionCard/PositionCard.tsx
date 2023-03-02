@@ -88,7 +88,7 @@ const PositionCard: React.FC<PositionCardProps> = ({
     <StyledBox>
       <Flex>
         <div>
-          <SubSubtitle>Position Id: {positionId}</SubSubtitle>
+          {/* <SubSubtitle>Position Id: {positionId}</SubSubtitle> */}
           <Center>
             <Subtitle>
               {tokens[0].icon} <StyledNumber>{tokens[0].balance} </StyledNumber>{" "}
@@ -102,7 +102,7 @@ const PositionCard: React.FC<PositionCardProps> = ({
           </Center>
         </div>
         <div>
-          <Subtitle>Progress:</Subtitle>
+          <SubSubtitle>Progress:</SubSubtitle>
           <Porgress>{progress}%</Porgress>
         </div>
       </Flex>
