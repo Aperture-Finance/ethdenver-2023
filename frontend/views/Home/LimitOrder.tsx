@@ -6,6 +6,7 @@ import { Positions } from "./Positions";
 const StyledBox = styled(Box)`
   max-width: 1000px;
   width: 100%;
+  margin: auto;
 `;
 const Wrapper = styled.div`
   display: grid;

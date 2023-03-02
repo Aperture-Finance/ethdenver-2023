@@ -1,12 +1,15 @@
-import Wallet from "@/components/Wallet/wallets";
 import { LimitOrder } from "./LimitOrder";
+import styled from "styled-components";
+
+const Container = styled.div`
+`;
 
 export const Home = () => {
   return (
-    <div>
+    <Container>
       <LimitOrder />
-    
+
       {/* <Wallet /> */}
-    </div>
+    </Container>
   );
 };
