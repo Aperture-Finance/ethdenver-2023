@@ -13,7 +13,7 @@ import { EthIcon } from "./icon/eth";
 import { UsdcIcon } from "./icon/usdc";
 
 const Wrapper = styled.div`
-  padding: 16px 14px 16px 18px;
+  padding: 0px 14px 16px 18px;
   width: calc(100% - 32px);
 `;
 const StyledEthIcon = styled(EthIcon)`
@@ -43,13 +43,13 @@ export const Swap = () => {
       name: "Wrapped Ethereum",
       ticker: "WETH",
       icon: <StyledEthIcon id="eth-1" />,
-      balance: "10.23124",
+      balance: 10.23124,
     },
     {
       name: "USD Coin",
       ticker: "USDC",
       icon: <StyledUsdcIcon id="usd-2" />,
-      balance: "10032423.23124",
+      balance: 10032423.23124,
     },
   ];
 
@@ -100,7 +100,7 @@ export const Swap = () => {
         onChange={(value: string) => console.log(value)}
         onError={(text: string) => text === "Error"}
         notes="weth"
-        buttonContext={<div>hi</div>}
+        buttonContext={<div>Deposit</div>}
         onSubmit={() => console.log("clicked!")}
       />
     </Wrapper>

@@ -28,7 +28,7 @@ const InputGroup: React.FC<InputGroupProps> = ({
   return (
     <Wrapper>
       <TextInput onChange={handleChange} {...props} />
-      <StyledButton error={error} onClick={() => !error && onSubmit()}>
+      <StyledButton error={error} primary onClick={() => !error && onSubmit()}>
         {buttonContext}
       </StyledButton>
     </Wrapper>

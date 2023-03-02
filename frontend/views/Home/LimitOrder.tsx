@@ -1,6 +1,7 @@
 import { Box, Title } from "@aperture/uikit";
 import { Swap } from "./Swap";
 import styled from "styled-components";
+import { Positions } from "./Positions";
 
 const StyledBox = styled(Box)`
   max-width: 1000px;
@@ -27,7 +28,7 @@ export const LimitOrder = () => {
       <HR />
       <Wrapper>
         <Swap/>
-        <div>Right</div>
+        <Positions/>
       </Wrapper>
     </StyledBox>
   );
