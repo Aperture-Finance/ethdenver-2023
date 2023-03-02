@@ -14,7 +14,7 @@ import styled from "styled-components";
 import { useNetwork } from "wagmi";
 import { Arrow } from "./icon/down";
 import SubmitBtn, { ErrorBtn } from "./SubmitBtn";
-import { TokenList } from "./tokenList";
+import { TokenList, TokenList2 } from "./tokenList";
 
 const Wrapper = styled.div`
   padding: 0px 14px 16px 18px;
@@ -64,7 +64,7 @@ export const Swap = () => {
       <Subtitle>Swap:</Subtitle>
       <Dropdown
         key="swap-dropdown"
-        tokenList={TokenList}
+        tokenList={TokenList2}
         onSelect={(token: Token) => setTokenB(token)}
       />
       <br />
