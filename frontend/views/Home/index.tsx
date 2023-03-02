@@ -1,12 +1,11 @@
 import Wallet from "@/components/Wallet/wallets";
-export const Home = () => {
+import { LimitOrder } from "./LimitOrder";
 
+export const Home = () => {
   return (
     <div>
-      Connect Wallet:
-      <Wallet/>
-     
-    
+      <LimitOrder />
+      {/* <Wallet /> */}
     </div>
   );
 };

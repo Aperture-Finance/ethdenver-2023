@@ -7,7 +7,7 @@ import {
 } from "wagmi";
 
 import { isChainSupported, isChainTestnet } from "@/utils/wagmi";
-import { TokensBalance } from "@/views/Home/TokenBalance";
+import { TokensBalance } from "@/views/TokenBalance";
 
 const Wallet = () => {
   const { address, connector, isConnected } = useAccount();
