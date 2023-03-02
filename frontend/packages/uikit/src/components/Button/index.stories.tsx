@@ -10,6 +10,7 @@ export const Default: React.FC = () => {
       <div style={{ width: "500px" }}>
         <Button onClick={() => console.log("feeTier selected: ")}>default button</Button>
         <Button error>Error Button</Button>
+        <Button primary>Primary Button</Button>
       </div>
     </>
   );

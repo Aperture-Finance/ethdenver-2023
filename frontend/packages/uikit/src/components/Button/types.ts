@@ -1,6 +1,7 @@
 import { HTMLAttributes } from "react"; 
 
-interface Props{
+interface Props {
+    primary?: boolean;
     error?: boolean
 }
 

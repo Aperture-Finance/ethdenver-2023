@@ -35,6 +35,8 @@ export type Colors = {
   gray1: string;
   gray2: string;
   error: string;
+  primary:string;
+  primary2:string;
 
   // going to get deleted
   textAlt: string;
