@@ -1,8 +1,5 @@
 import { getstrategyAddress, getTokenAddress } from "@/config/contracts";
-import {
-  useFetchUserToken,
-  useFetchUserTokens,
-} from "@/hooks/useFetchUserToken";
+import { useFetchUserTokens } from "@/hooks/useFetchUserToken";
 import {
   ButtonGroups,
   Dropdown,
@@ -16,6 +13,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import { useNetwork } from "wagmi";
 import { Arrow } from "./icon/down";
+import SubmitBtn, { ErrorBtn } from "./SubmitBtn";
 import { TokenList } from "./tokenList";
 
 const Wrapper = styled.div`
@@ -34,12 +32,13 @@ const StyledArrow = styled(Arrow)`
   height: 20px;
   margin: 0 12px;
 `;
+
 export const Swap = () => {
   const [tokenA, setTokenA] = useState<Token | null>(null);
   const [tokenB, setTokenB] = useState<Token | null>(null);
   const [ratio, setRatio] = useState<string | null>(null);
   const [amount, setAmount] = useState<string | null>(null);
-  const getButtonText = () => {
+  const getButtonText = (): string => {
     if (!(tokenA && tokenB && tokenA.ticker !== tokenB.ticker)) {
       return "Select Token";
     } else if (!(ratio && Number(ratio) > 0)) {
@@ -97,7 +96,32 @@ export const Swap = () => {
         onChange={(value: string) => setAmount(value)}
         onError={(text: string) => !text}
         notes="weth"
-        submitButton={<div>test</div>}
+        submitButton={
+          tokenA &&
+          tokenB &&
+          tokenA.ticker !== tokenB.ticker &&
+          ratio &&
+          Number(ratio) > 0 &&
+          amount &&
+          Number(amount) > 0 &&
+          Number(amount) < Number(tokenA.balance) ? (
+            <SubmitBtn ticker={tokenA?.ticker} contractType="limitOrder" />
+          ) : (
+            <ErrorBtn
+              text={
+                !(tokenA && tokenB && tokenA.ticker !== tokenB.ticker)
+                  ? "Select The Valid Token"
+                  : !(ratio && Number(ratio) > 0)
+                  ? "Missing Swap Ratio"
+                  : !(amount && Number(amount) > 0)
+                  ? "Missing Deposit Amount"
+                  : Number(amount) > Number(tokenA.balance)
+                  ? "Deposit Amount Exceed Balance"
+                  : "undefined error"
+              }
+            />
+          )
+        }
       />
     </Wrapper>
   );
