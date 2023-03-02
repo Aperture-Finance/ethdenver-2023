@@ -30,7 +30,7 @@ export const Title: React.FC<React.PropsWithChildren> = ({
 
 const StyledSubtitle = styled.div`
   font-size: 16px;
-  font-weight: 300;
+  font-weight: 400;
   line-height: 1.5;
   margin-top: 5px;
   ${space}
@@ -41,6 +41,20 @@ export const Subtitle: React.FC<React.PropsWithChildren> = ({
   children,
   ...props
 }) => <StyledSubtitle {...props}>{children}</StyledSubtitle>;
+
+const StyledSubSubtitle = styled.div`
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  margin-top: 5px;
+  ${space}
+  ${layout}
+  ${color}
+`;
+export const SubSubtitle: React.FC<React.PropsWithChildren> = ({
+  children,
+  ...props
+}) => <StyledSubSubtitle {...props}>{children}</StyledSubSubtitle>;
 
 const StyledTicker = styled.div`
   font-size: 18px;

@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { PositionCardProps } from "./types";
-import { Number, Subtitle } from "../Typography";
+import { Number, SubSubtitle, Subtitle } from "../Typography";
 import { Button } from "../Button";
 const StyledBox = styled.div`
   border-radius: 16px;
@@ -12,6 +12,11 @@ const StyledBox = styled.div`
   align-items: center;
   position: relative;
   margin-top: 10px;
+  cursor: pointer;
+  :hover{
+    background-color: ${({theme})=> theme.colors.gray1};
+    transition: all 0.3s ease-in-out;
+  }
 `;
 const Flex = styled.div`
   display: Grid;
@@ -83,8 +88,7 @@ const PositionCard: React.FC<PositionCardProps> = ({
     <StyledBox>
       <Flex>
         <div>
-          <Subtitle>PositionId: {positionId}</Subtitle>
-
+          <SubSubtitle>Position Id: {positionId}</SubSubtitle>
           <Center>
             <Subtitle>
               {tokens[0].icon} <StyledNumber>{tokens[0].balance} </StyledNumber>{" "}
