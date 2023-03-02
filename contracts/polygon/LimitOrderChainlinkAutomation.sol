@@ -12,6 +12,8 @@ import "@uniswap/v3-periphery/contracts/libraries/PoolAddress.sol";
 
 contract LimitOrderChainlinkAutomation is KeeperCompatibleInterface {
     using SafeCast for uint128;
+    using TickMath for int24;
+
     INonfungiblePositionManager
         internal constant UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER =
         INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
@@ -106,25 +108,25 @@ contract LimitOrderChainlinkAutomation is KeeperCompatibleInterface {
         int256 amount1;
         if (tick < tickLower) {
             amount0 = SqrtPriceMath.getAmount0Delta(
-                TickMath.getSqrtRatioAtTick(tickLower),
-                TickMath.getSqrtRatioAtTick(tickUpper),
+                tickLower.getSqrtRatioAtTick(),
+                tickUpper.getSqrtRatioAtTick(),
                 liquidityInt128
             );
         } else if (tick < tickUpper) {
             amount0 = SqrtPriceMath.getAmount0Delta(
                 sqrtPriceX96,
-                TickMath.getSqrtRatioAtTick(tickUpper),
+                tickUpper.getSqrtRatioAtTick(),
                 liquidityInt128
             );
             amount1 = SqrtPriceMath.getAmount1Delta(
-                TickMath.getSqrtRatioAtTick(tickLower),
+                tickLower.getSqrtRatioAtTick(),
                 sqrtPriceX96,
                 liquidityInt128
             );
         } else {
             amount1 = SqrtPriceMath.getAmount1Delta(
-                TickMath.getSqrtRatioAtTick(tickLower),
-                TickMath.getSqrtRatioAtTick(tickUpper),
+                tickLower.getSqrtRatioAtTick(),
+                tickUpper.getSqrtRatioAtTick(),
                 liquidityInt128
             );
         }
