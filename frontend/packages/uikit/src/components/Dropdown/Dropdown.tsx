@@ -5,7 +5,7 @@ import { DropdownProps } from "./types";
 
 const DropdownBtn = styled.div`
   border-radius: 16px;
-  font-size: 22px;
+  font-size: 18px;
   background-color: #f9f9f9;
   border: 1px solid #e1e1e1;
   color: black;
@@ -44,7 +44,7 @@ const CoinCard = styled.div`
   height: 56px;
   display: grid;
   grid-template-columns: auto minmax(auto, 1fr) minmax(0px, 72px);
-  gap: 16px;
+  gap: 8px;
   cursor: pointer;
   opacity: 1;
   &:hover {
@@ -107,6 +107,7 @@ const Dropdown: React.FC<DropdownProps> = ({ tokenList, onSelect }) => {
         <DropdownContent>
           {tokenList.map((token, index) => (
             <CoinCard
+              key={index}
               onClick={() => {
                 if (index !== selected) {
                   select(index);

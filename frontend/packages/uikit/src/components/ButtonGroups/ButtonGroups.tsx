@@ -27,7 +27,8 @@ const Wrapper = styled.div`
   position: relative;
   display: flex;
   flex-direction: row;
-  gap: 16px;
+  gap: 8px;
+  margin-left: 16px;
 `;
 
 const ButtonGroups: React.FC<ButtonGroupsProps> = ({ onSelect }) => {

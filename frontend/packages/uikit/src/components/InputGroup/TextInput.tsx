@@ -10,7 +10,8 @@ const Wrapper = styled.div`
 `;
 
 const StyledButton = styled(Button)`
-  margin-left: 16px;
+  margin-left: 8px;
+  width: 100px;
 `;
 const InputGroup: React.FC<InputGroupProps> = ({
   buttonContext,
