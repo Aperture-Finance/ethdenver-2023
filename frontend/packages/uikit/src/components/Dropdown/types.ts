@@ -9,5 +9,5 @@ export interface Token {
   name: string;
   ticker: string;
   icon: ReactNode;
-  balance: string | number;
+  balance: number;
 }

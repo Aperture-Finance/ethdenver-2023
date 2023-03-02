@@ -23,13 +23,13 @@ export const Default: React.FC = () => {
       name: "Wrapped Ethereum",
       ticker: "WETH",
       icon: <StyledEthIcon />,
-      balance: "10.23124",
+      balance: 10.23124,
     },
     {
       name: "USD Coin",
       ticker: "USDC",
       icon: <StyledUsdcIcon />,
-      balance: "10032423.23124",
+      balance: 10032423.23124,
     },
   ];
   return (

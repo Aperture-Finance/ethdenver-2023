@@ -12,8 +12,8 @@ const Btn = styled.div<{ primary?: boolean; error?: boolean }>`
       ? theme.colors.primary
       : theme.colors.gray};
   border: 1px solid
-    ${({ theme, primary }) =>
-      primary ? theme.colors.primary : theme.colors.gray2};
+    ${({ theme, primary, error }) =>
+      primary && !error ? theme.colors.primary : theme.colors.gray2};
   width: fit-content;
   justify-content: center;
   align-items: center;

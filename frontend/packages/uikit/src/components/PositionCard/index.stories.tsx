@@ -9,13 +9,15 @@ export default {
 };
 
 const StyledEthIcon = styled(EthIcon)`
-  width: 36px;
-  height: 36px;
+  width: 16px;
+  height: 16px;
+  margin-bottom: -2px;
 `;
 
 const StyledUsdcIcon = styled(UsdcIcon)`
-  width: 36px;
-  height: 36px;
+  width: 16px;
+  height: 16px;
+  margin-bottom: -2px;
 `;
 export const Default: React.FC = () => {
   const TokenList: [Token, Token] = [
@@ -23,13 +25,13 @@ export const Default: React.FC = () => {
       name: "Wrapped Ethereum",
       ticker: "WETH",
       icon: <StyledEthIcon />,
-      balance: "10.23124",
+      balance: 10.23124,
     },
     {
       name: "USD Coin",
       ticker: "USDC",
       icon: <StyledUsdcIcon />,
-      balance: "10032423.23124",
+      balance: 10032423.23124,
     },
   ];
 
@@ -38,7 +40,12 @@ export const Default: React.FC = () => {
       <PositionCard
         positionId="124314nji124"
         tokens={TokenList}
-        progress={0.5}
+        progress={50}
+      />
+      <PositionCard
+        positionId="124314nji124"
+        tokens={TokenList}
+        progress={100}
       />
     </>
   );
