@@ -48,3 +48,32 @@ const Button: React.FC<ButtonProps> = ({
 };
 
 export default Button;
+
+const SmallBtn = styled.div`
+  font-size: 14px;
+  width: fit-content;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: ${({ theme }) => theme.colors.primary2};
+  &:hover {
+    color: ${({ theme }) => theme.colors.primary};
+    transition: background-color 0.2s ease-in-out;
+  }
+`;
+
+export const SMBtn: React.FC<ButtonProps> = ({
+  primary,
+  error,
+  children,
+  ...props
+}) => {
+  return (
+    <SmallBtn {...props}>
+      {children}
+    </SmallBtn>
+  );
+};

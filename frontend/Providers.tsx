@@ -14,7 +14,7 @@ const StyledUIKitProvider: React.FC<React.PropsWithChildren> = ({
 }) => {
   const { resolvedTheme } = useTheme();
   return (
-    <UIKitProvider theme={resolvedTheme === "dark" ? dark : light} {...props}>
+    <UIKitProvider theme={light} {...props}>
       {children}
     </UIKitProvider>
   );

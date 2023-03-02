@@ -6,7 +6,8 @@ export const GlobalStyle = createGlobalStyle`
     height: 100vh;
     // background: linear-gradient(45deg, #F3A2E6 0%, #FAD494 100%);
     font-family: 'Quicksand', sans-serif;
-    color: ${({ theme }) => theme.colors.black}
+    color: black;
+    background: white;
     overflow-x: hidden;
     overflow-y: scroll;
   }

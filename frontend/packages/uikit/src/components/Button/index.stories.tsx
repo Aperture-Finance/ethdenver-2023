@@ -1,4 +1,4 @@
-import { Button } from ".";
+import { Button, SMBtn } from ".";
 export default {
   title: "Components/Button",
   argTypes: {},
@@ -11,6 +11,7 @@ export const Default: React.FC = () => {
         <Button onClick={() => console.log("feeTier selected: ")}>default button</Button>
         <Button error>Error Button</Button>
         <Button primary>Primary Button</Button>
+        <SMBtn>disconnect</SMBtn>
       </div>
     </>
   );
