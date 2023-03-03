@@ -4,30 +4,20 @@ pragma abicoder v2;
 
 import "@chainlink/contracts/src/v0.7/interfaces/KeeperCompatibleInterface.sol";
 import "@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol";
-import "@uniswap/v3-core/contracts/libraries/SafeCast.sol";
-import "@uniswap/v3-core/contracts/libraries/SqrtPriceMath.sol";
 import "@uniswap/v3-core/contracts/libraries/TickMath.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol";
 import "@uniswap/v3-periphery/contracts/libraries/PoolAddress.sol";
 import "@uniswap/v3-periphery/contracts/libraries/LiquidityAmounts.sol";
 
-contract LimitOrderChainlinkAutomation is KeeperCompatibleInterface {
-    using SafeCast for uint128;
+import {UniV3Automan} from "./UniV3Automan.sol";
+
+contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
     using TickMath for int24;
 
-    INonfungiblePositionManager
-        internal constant UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER =
-        INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
-    address internal constant UNISWAP_V3_FACTORY_ADDRESS =
-        0x1F98431c8aD98523631AE4a59f267346ea31F984;
-
-    // Position id to zeroForOne mapping, indicating whether a given position is
-    // for a limit order exchanging from token0 for token1 or the other way around.
-    mapping(uint256 => bool) positionIdToZeroForOne;
-
-    // Position id to owner address mapping. Owner is the user that placed the
-    // limit order.
-    mapping(uint256 => address) positionIdToOwner;
+    constructor(
+        INonfungiblePositionManager nonfungiblePositionManager,
+        address V3_FACTORY
+    ) UniV3Automan(nonfungiblePositionManager, V3_FACTORY) {}
 
     /**
      * @notice method that is simulated by the keepers to see if the limit order
@@ -57,35 +47,6 @@ contract LimitOrderChainlinkAutomation is KeeperCompatibleInterface {
         }
     }
 
-    function getLiquidityPositionInfo(
-        uint256 positionId
-    )
-        internal
-        view
-        returns (PoolAddress.PoolKey memory, int24, int24, uint128)
-    {
-        (
-            ,
-            ,
-            address token0,
-            address token1,
-            uint24 fee,
-            int24 tickLower,
-            int24 tickUpper,
-            uint128 liquidity,
-            ,
-            ,
-            ,
-
-        ) = UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER.positions(positionId);
-        return (
-            PoolAddress.PoolKey(token0, token1, fee),
-            tickLower,
-            tickUpper,
-            liquidity
-        );
-    }
-
     function checkUpkeepInternal(
         uint256 positionId
     ) internal view returns (bool, uint128) {
@@ -95,21 +56,19 @@ contract LimitOrderChainlinkAutomation is KeeperCompatibleInterface {
             int24 tickUpper,
             uint128 liquidity
         ) = getLiquidityPositionInfo(positionId);
-        address pool_address = PoolAddress.computeAddress(
-            UNISWAP_V3_FACTORY_ADDRESS,
-            pool_key
-        );
-        (uint160 sqrtPriceX96, int24 tick, , , , , ) = IUniswapV3PoolState(
+        address pool_address = PoolAddress.computeAddress(factory, pool_key);
+        (uint160 sqrtPriceX96, , , , , , ) = IUniswapV3PoolState(
             pool_address
         ).slot0();
 
         // Find current amount of the two tokens in the liquidity position.
-        (uint256 amount0, uint256 amount1) = LiquidityAmounts.getAmountsForLiquidity(
-            sqrtPriceX96,
-            tickLower.getSqrtRatioAtTick(),
-            tickUpper.getSqrtRatioAtTick(),
-            liquidity
-        );
+        (uint256 amount0, uint256 amount1) = LiquidityAmounts
+            .getAmountsForLiquidity(
+                sqrtPriceX96,
+                tickLower.getSqrtRatioAtTick(),
+                tickUpper.getSqrtRatioAtTick(),
+                liquidity
+            );
 
         bool upkeepNeeded;
         if (positionIdToZeroForOne[positionId]) {
@@ -142,7 +101,7 @@ contract LimitOrderChainlinkAutomation is KeeperCompatibleInterface {
             positionId
         );
         require(limitOrderFulfilled, "condition not met");
-        UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER.decreaseLiquidity(
+        decreaseLiquidity(
             INonfungiblePositionManager.DecreaseLiquidityParams({
                 tokenId: positionId,
                 liquidity: liquidity,
@@ -151,7 +110,7 @@ contract LimitOrderChainlinkAutomation is KeeperCompatibleInterface {
                 deadline: type(uint256).max
             })
         );
-        UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER.collect(
+        collect(
             INonfungiblePositionManager.CollectParams({
                 tokenId: positionId,
                 recipient: positionIdToOwner[positionId],
