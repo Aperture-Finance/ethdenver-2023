@@ -3,24 +3,10 @@ pragma solidity ^0.7.0;
 pragma abicoder v2;
 
 import {AutomationRegistryInterface, State, Config} from "./interfaces/AutomationRegistryInterface1_2.sol";
+import {KeeperRegistrarInterface} from "./interfaces/KeeperRegistrarInterface.sol";
 import {LinkTokenInterface} from "@chainlink/contracts/src/v0.7/interfaces/LinkTokenInterface.sol";
 import {KeeperCompatibleInterface} from "@chainlink/contracts/src/v0.7/interfaces/KeeperCompatibleInterface.sol";
-
 import "./UniV3Automan.sol";
-
-interface KeeperRegistrarInterface {
-    function register(
-        string memory name,
-        bytes calldata encryptedEmail,
-        address upkeepContract,
-        uint32 gasLimit,
-        address adminAddress,
-        bytes calldata checkData,
-        uint96 amount,
-        uint8 source,
-        address sender
-    ) external;
-}
 
 contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
     LinkTokenInterface public immutable i_link;
@@ -29,15 +15,15 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
     bytes4 registerSig = KeeperRegistrarInterface.register.selector;
 
     constructor(
-        LinkTokenInterface _link,
-        address _registrar,
         AutomationRegistryInterface _registry,
         INonfungiblePositionManager nonfungiblePositionManager,
         address V3_FACTORY
     ) UniV3Automan(nonfungiblePositionManager, V3_FACTORY) {
-        i_link = _link;
-        registrar = _registrar;
         i_registry = _registry;
+        (, Config memory config, ) = _registry.getState();
+        address _registrar = config.registrar;
+        registrar = _registrar;
+        i_link = KeeperRegistrarInterface(_registrar).LINK();
     }
 
     /// @param name	Name of Upkeep
