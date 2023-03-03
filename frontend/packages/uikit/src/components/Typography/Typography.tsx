@@ -80,7 +80,7 @@ export const Ticker: React.FC<React.PropsWithChildren> = ({
 }) => <StyledTicker {...props}>{children}</StyledTicker>;
 
 
-const StyledNumber = styled.div`
+const StyledNumber = styled.span`
   font-size: 16px;
   font-family: "Chakra Petch", sans-serif;
   ${space}

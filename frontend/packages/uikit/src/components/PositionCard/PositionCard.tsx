@@ -2,40 +2,53 @@ import React from "react";
 import styled from "styled-components";
 import { PositionCardProps } from "./types";
 import { Number, SubSubtitle, Subtitle } from "../Typography";
-import { Button } from "../Button";
+import { Button, SMBtn } from "../Button";
 const StyledBox = styled.div`
   border-radius: 16px;
   background-color: #f9f9f9;
   border: 1px solid #e1e1e1;
-  width: calc(100% - 20px);
-  padding: 10px;
+  width: calc(100% - 32px);
+  padding: 16px 16px;
   align-items: center;
   position: relative;
-  margin-top: 10px;
-  cursor: pointer;
-  :hover{
-    background-color: ${({theme})=> theme.colors.gray1};
+  margin: 20px 0px;
+  cursor: default;
+  :hover {
+    background-color: white;
     transition: all 0.3s ease-in-out;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.1);
   }
 `;
+const Grid = styled.div``;
 const Flex = styled.div`
-  display: Grid;
-  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 `;
-const StyledButton = styled(Button)`
-  width: calc(100% - 50px);
+const StyledButton = styled(Button)<{ outline: boolean }>`
+  width: calc(100% - ${({ outline }) => (outline ? "0px" : "32px")});
+  ${({ outline }) => outline && "cursor: default;"}
 `;
 const Porgress = styled.div`
-  font-size: 72px;
+  font-size: 40px;
+  position: absolute;
+  top: 8px;
+  right: 16px;
   background: -webkit-linear-gradient(45deg, #ffaf29 0%, #c000a1 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-family: "Chakra Petch", sans-serif;
   font-weight: 500;
+  float: right;
 `;
-const StyledNumber = styled(Number)`
-  display: inline-block;
+const StyledSMBTN = styled(SMBtn)`
+  height: fit-content;
+  width: fit-content;
+  padding: 2px 8px;
+  cursor: default;
 `;
+
 const Arrow = (props: any) => (
   <svg
     fill="#a1a1a1"
@@ -72,11 +85,10 @@ const StyledArrow = styled(Arrow)`
   width: 20px;
   height: 20px;
 `;
-
-const Center = styled.div`
-  display: flex;
-  align-items: center;
-  flex-direction: column;
+const SMTT = styled.div`
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+  margin-bottom: 16px;
 `;
 
 const PositionCard: React.FC<PositionCardProps> = ({
@@ -86,27 +98,24 @@ const PositionCard: React.FC<PositionCardProps> = ({
 }) => {
   return (
     <StyledBox>
-      <Flex>
-        <div>
-          {/* <SubSubtitle>Position Id: {positionId}</SubSubtitle> */}
-          <Center>
-            <Subtitle>
-              {tokens[0].icon} <StyledNumber>{tokens[0].balance} </StyledNumber>{" "}
-              {tokens[0].ticker}
-            </Subtitle>
-            <StyledArrow />
-            <Subtitle>
-              {tokens[1].icon} <StyledNumber>{tokens[1].balance} </StyledNumber>{" "}
-              {tokens[1].ticker}
-            </Subtitle>
-          </Center>
-        </div>
-        <div>
-          <SubSubtitle>Progress:</SubSubtitle>
-          <Porgress>{progress}%</Porgress>
-        </div>
-      </Flex>
-      <StyledButton error={progress >= 100} primary>
+      <Grid>
+        <SMTT>Position: No.1</SMTT>
+        <Porgress>{progress===100?"CLOSED":progress+"%"}</Porgress>
+        <Flex>
+          <span style={{ marginTop: "-1px" }}>{tokens[0].icon}</span>
+          <span style={{ marginLeft: "-5px", marginRight: "10px" }}>
+            {tokens[1].icon}
+          </span>
+          {tokens[0].ticker}/{tokens[1].ticker}
+          <StyledSMBTN>0.3%</StyledSMBTN>
+        </Flex>
+        <span style={{ fontSize: "14px", opacity: "0.7" }}>
+          <Number>1000</Number> {tokens[0].ticker} {"<->"} <Number>200</Number>{" "}
+          {tokens[1].ticker}
+        </span>
+      </Grid>
+      <br />
+      <StyledButton outline={progress >= 100} primary={progress < 100}>
         {progress >= 100 ? (
           <>
             {tokens[1].balance} {tokens[1].ticker} has already been sent to your

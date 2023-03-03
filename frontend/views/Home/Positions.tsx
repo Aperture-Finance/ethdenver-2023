@@ -20,14 +20,14 @@ const Wrapper = styled.div`
   overflow-y: scroll;
 `;
 const StyledEthIcon = styled(EthIcon)`
-  width: 16px;
-  height: 16px;
+  width: 25px;
+  height: 25px;
   margin-bottom: -2px;
 `;
 
 const StyledUsdcIcon = styled(UsdcIcon)`
-  width: 16px;
-  height: 16px;
+  width: 25px;
+  height: 25px;
   margin-bottom: -2px;
 `;
 
