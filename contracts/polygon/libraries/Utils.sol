@@ -7,7 +7,7 @@ library Utils {
     function matchTickSpacing(
         int24 tick,
         int24 tickSpacing
-    ) internal view returns (int24) {
+    ) internal pure returns (int24) {
         uint absTick = tick < 0 ? uint(-int(tick)) : uint(int(tick));
         absTick -= absTick % uint(int(tickSpacing));
         return tick < 0 ? -int24(int(absTick)) : int24(int(absTick));

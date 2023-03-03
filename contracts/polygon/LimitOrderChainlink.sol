@@ -94,10 +94,11 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
         }
     }
 
+    /// @notice Create a Uni v3 LP and limit order
     /// @param inputToken Token to sell
     /// @param outputToken Token to receive
     /// @param inputAmount Amount to sell
-    /// @param feeTier Uni v3 pool fee tier
+    /// @param fee Uni v3 pool fee tier
     /// @param limitPrice Limit price defined as (outputToken / inputToken) * 1e18
     function createLimitOrder(
         address inputToken,
@@ -107,8 +108,11 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
         uint256 limitPrice
     ) external payable {
         // TODO: Utils.matchTickSpacing
-        INonfungiblePositionManager.MintParams memory params;
-        (address token0, address token1) = sortTokens(inputToken, outputToken);
+        (address token0, address token1) = Utils.sortTokens(
+            inputToken,
+            outputToken
+        );
+        bool isZeroForOne;
         int24 tickLower;
         int24 tickUpper;
         uint256 amount0Desired;
@@ -128,7 +132,6 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
                 amount1Desired
             );
 
-        /// @param adminAddress	Address for Upkeep administrator. Upkeep administrator can fund contract.
         uint256 upkeepID = registerAndPredictID(
             "LimitOrder",
             new bytes(0),
@@ -140,7 +143,12 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
             uint8(0)
         );
         orderBook.push(tokenId);
-        orderInfo[tokenId] = LimitOrder();
+        orderInfo[tokenId] = LimitOrder({
+            owner: msg.sender,
+            isZeroForOne: isZeroForOne,
+            completed: false,
+            upkeepID: upkeepID
+        });
     }
 
     function cancelLimitOrder(uint256 positionId) external {}

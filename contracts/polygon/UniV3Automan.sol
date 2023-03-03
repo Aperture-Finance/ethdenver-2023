@@ -51,10 +51,9 @@ contract UniV3Automan is IERC721Receiver {
             int24 tickUpper,
             uint128 liquidity,
             ,
-            ,
 
         ) = positions(positionId);
-        address pool = computePoolAddress(factory, token0, token1, fee);
+        address pool = Utils.computePoolAddress(factory, token0, token1, fee);
         (uint160 sqrtPriceX96, , , , , , ) = IUniswapV3PoolState(pool).slot0();
 
         // Find current amount of the two tokens in the liquidity position.
@@ -88,16 +87,16 @@ contract UniV3Automan is IERC721Receiver {
         (
             ,
             ,
-            address token0,
-            address token1,
-            uint24 fee,
-            int24 tickLower,
-            int24 tickUpper,
-            uint128 liquidity,
+            token0,
+            token1,
+            fee,
+            tickLower,
+            tickUpper,
+            liquidity,
             ,
             ,
-            uint128 tokensOwed0,
-            uint128 tokensOwed1
+            tokensOwed0,
+            tokensOwed1
         ) = NFPM.positions(tokenId);
     }
 
@@ -120,6 +119,7 @@ contract UniV3Automan is IERC721Receiver {
         uint256 amount1Desired
     )
         public
+        payable
         returns (
             uint256 tokenId,
             uint128 liquidity,
@@ -127,18 +127,18 @@ contract UniV3Automan is IERC721Receiver {
             uint256 amount1
         )
     {
-        IERC20(params.token0).safeTransferFrom(
+        IERC20(token0).safeTransferFrom(
             msg.sender,
             address(this),
-            params.amount0Desired
+            amount0Desired
         );
-        IERC20(params.token1).safeTransferFrom(
+        IERC20(token1).safeTransferFrom(
             msg.sender,
             address(this),
-            params.amount1Desired
+            amount1Desired
         );
-        IERC20(params.token0).safeApprove(address(NFPM), params.amount0Desired);
-        IERC20(params.token1).safeApprove(address(NFPM), params.amount1Desired);
+        IERC20(token0).safeApprove(address(NFPM), amount0Desired);
+        IERC20(token1).safeApprove(address(NFPM), amount1Desired);
         // TODO: refund
 
         return
@@ -170,7 +170,11 @@ contract UniV3Automan is IERC721Receiver {
         uint256 tokenId,
         uint256 amount0Desired,
         uint256 amount1Desired
-    ) public returns (uint128 liquidity, uint256 amount0, uint256 amount1) {
+    )
+        public
+        payable
+        returns (uint128 liquidity, uint256 amount0, uint256 amount1)
+    {
         // TODO: approve, transfer
         return
             NFPM.increaseLiquidity{value: msg.value}(
