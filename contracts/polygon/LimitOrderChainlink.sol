@@ -23,6 +23,10 @@ interface KeeperRegistrarInterface {
 }
 
 contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
+    //  Registry Address	0x02777053d6764996e594c3E88AF1D58D5363a2e6
+    //  Registrar Address	0xDb8e8e2ccb5C033938736aa89Fe4fa1eDfD15a1d
+    // TestTokenA 0x3428F678C364341785C0CafEd75B608393B6711D
+    // TestTokenB 0xD3c193236659cD8350FAD39aB4fF97536Ed72998
     LinkTokenInterface public immutable i_link;
     address public immutable registrar;
     AutomationRegistryInterface public immutable i_registry;
@@ -59,8 +63,7 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
         uint96 amount,
         uint8 source
     ) internal returns (uint256 upkeepID) {
-        (State memory state, Config memory _c, address[] memory _k) = i_registry
-            .getState();
+        (State memory state, , ) = i_registry.getState();
         uint256 oldNonce = state.nonce;
         bytes memory payload = abi.encode(
             name,
@@ -79,9 +82,8 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
             amount,
             abi.encodeWithSelector(registerSig, payload)
         );
-        (state, _c, _k) = i_registry.getState();
-        uint256 newNonce = state.nonce;
-        if (newNonce == oldNonce + 1) {
+        (state, , ) = i_registry.getState();
+        if (state.nonce == oldNonce + 1) {
             upkeepID = uint256(
                 keccak256(
                     abi.encodePacked(
@@ -95,6 +97,18 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
             revert("auto-approve disabled");
         }
     }
+
+    function createLimitOrder(
+        address input_token,
+        address output_token,
+        uint256 input_amt,
+        uint24 fee_tier,
+        uint256 target_price
+    ) external payable {
+        // TODO: TICK_SPACING
+    }
+
+    function cancelLimitOrder(uint256 positionId) external {}
 
     /**
      * @notice method that is simulated by the keepers to see if the limit order
@@ -112,16 +126,17 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
     function checkUpkeep(
         bytes calldata checkData
     )
-        public
+        external
         view
         override
-        returns (bool upkeepNeeded, bytes memory performData)
+        returns (bool upkeepNeeded, bytes calldata performData)
     {
-        uint256 positionId = abi.decode(checkData, (uint256));
-        (upkeepNeeded, ) = checkUpkeepInternal(positionId);
-        if (upkeepNeeded) {
-            performData = checkData;
+        uint256 positionId;
+        assembly {
+            positionId := calldataload(checkData.offset)
         }
+        (upkeepNeeded, ) = checkUpkeepInternal(positionId);
+        performData = checkData;
     }
 
     function checkUpkeepInternal(
@@ -161,7 +176,10 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
      * validated against the contract's current state.
      */
     function performUpkeep(bytes calldata performData) external override {
-        uint256 positionId = abi.decode(performData, (uint256));
+        uint256 positionId;
+        assembly {
+            positionId := calldataload(performData.offset)
+        }
         (bool limitOrderFulfilled, uint128 liquidity) = checkUpkeepInternal(
             positionId
         );

@@ -108,8 +108,7 @@ contract UniV3Automan is IERC721Receiver {
     function mint(
         INonfungiblePositionManager.MintParams memory params
     )
-        public
-        payable
+        internal
         returns (
             uint256 tokenId,
             uint128 liquidity,
@@ -127,9 +126,9 @@ contract UniV3Automan is IERC721Receiver {
             address(this),
             params.amount1Desired
         );
-        IERC20(params.token0).approve(address(NFPM), params.amount0Desired);
-        IERC20(params.token1).approve(address(NFPM), params.amount1Desired);
-        // TODO: TICK_SPACING, refund
+        IERC20(params.token0).safeApprove(address(NFPM), params.amount0Desired);
+        IERC20(params.token1).safeApprove(address(NFPM), params.amount1Desired);
+        // TODO: refund
         return NFPM.mint{value: msg.value}(params);
     }
 
@@ -145,11 +144,7 @@ contract UniV3Automan is IERC721Receiver {
     /// @return amount1 The amount of token1 to acheive resulting liquidity
     function increaseLiquidity(
         INonfungiblePositionManager.IncreaseLiquidityParams memory params
-    )
-        public
-        payable
-        returns (uint128 liquidity, uint256 amount0, uint256 amount1)
-    {
+    ) internal returns (uint128 liquidity, uint256 amount0, uint256 amount1) {
         // TODO: approve, transfer
         return NFPM.increaseLiquidity{value: msg.value}(params);
     }
