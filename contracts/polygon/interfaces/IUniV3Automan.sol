@@ -2,9 +2,10 @@
 pragma solidity ^0.7.0;
 pragma abicoder v2;
 
+import '@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol';
 import "@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol";
 
-interface IUniV3Automan {
+interface IUniV3Automan is IERC721Receiver {
     /// @notice Returns the position information associated with a given token ID.
     /// @dev Throws if the token ID is not valid.
     /// @param tokenId The ID of the token that represents the position

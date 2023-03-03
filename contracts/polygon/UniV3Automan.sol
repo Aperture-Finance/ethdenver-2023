@@ -7,7 +7,7 @@ import "@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.s
 import "@uniswap/v3-periphery/contracts/libraries/PoolAddress.sol";
 import "@uniswap/v3-periphery/contracts/libraries/LiquidityAmounts.sol";
 
-import {IUniV3Automan} from "./interfaces/IUniV3Automan.sol";
+import "./interfaces/IUniV3Automan.sol";
 
 contract UniV3Automan is IUniV3Automan {
     INonfungiblePositionManager immutable NFPM;
@@ -133,5 +133,14 @@ contract UniV3Automan is IUniV3Automan {
     /// @inheritdoc IUniV3Automan
     function burn(uint256 tokenId) public payable override {
         return NFPM.burn(tokenId);
+    }
+
+    function onERC721Received(
+        address operator,
+        address from,
+        uint tokenId,
+        bytes calldata
+    ) external returns (bytes4) {
+        return IERC721Receiver.onERC721Received.selector;
     }
 }
