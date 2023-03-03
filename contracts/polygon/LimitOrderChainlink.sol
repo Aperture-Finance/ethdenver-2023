@@ -23,10 +23,6 @@ interface KeeperRegistrarInterface {
 }
 
 contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
-    //  Registry Address	0x02777053d6764996e594c3E88AF1D58D5363a2e6
-    //  Registrar Address	0xDb8e8e2ccb5C033938736aa89Fe4fa1eDfD15a1d
-    // TestTokenA 0x3428F678C364341785C0CafEd75B608393B6711D
-    // TestTokenB 0xD3c193236659cD8350FAD39aB4fF97536Ed72998
     LinkTokenInterface public immutable i_link;
     address public immutable registrar;
     AutomationRegistryInterface public immutable i_registry;
@@ -98,14 +94,53 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
         }
     }
 
+    /// @param inputToken Token to sell
+    /// @param outputToken Token to receive
+    /// @param inputAmount Amount to sell
+    /// @param feeTier Uni v3 pool fee tier
+    /// @param limitPrice Limit price defined as (outputToken / inputToken) * 1e18
     function createLimitOrder(
-        address input_token,
-        address output_token,
-        uint256 input_amt,
-        uint24 fee_tier,
-        uint256 target_price
+        address inputToken,
+        address outputToken,
+        uint256 inputAmount,
+        uint24 fee,
+        uint256 limitPrice
     ) external payable {
-        // TODO: TICK_SPACING
+        // TODO: Utils.matchTickSpacing
+        INonfungiblePositionManager.MintParams memory params;
+        (address token0, address token1) = sortTokens(inputToken, outputToken);
+        int24 tickLower;
+        int24 tickUpper;
+        uint256 amount0Desired;
+        uint256 amount1Desired;
+        (
+            uint256 tokenId,
+            uint128 liquidity,
+            uint256 amount0,
+            uint256 amount1
+        ) = mint(
+                token0,
+                token1,
+                fee,
+                tickLower,
+                tickUpper,
+                amount0Desired,
+                amount1Desired
+            );
+
+        /// @param adminAddress	Address for Upkeep administrator. Upkeep administrator can fund contract.
+        uint256 upkeepID = registerAndPredictID(
+            "LimitOrder",
+            new bytes(0),
+            address(this),
+            uint32(2000000),
+            address(this),
+            abi.encode(tokenId),
+            uint96(0),
+            uint8(0)
+        );
+        orderBook.push(tokenId);
+        orderInfo[tokenId] = LimitOrder();
     }
 
     function cancelLimitOrder(uint256 positionId) external {}
@@ -151,7 +186,7 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
         ) = getLiquidityPositionInfo(positionId);
 
         bool upkeepNeeded;
-        if (positionIdToZeroForOne[positionId]) {
+        if (orderInfo[positionId].isZeroForOne) {
             upkeepNeeded = amount0 == 0 && amount1 > 0;
         } else {
             upkeepNeeded = amount1 == 0 && amount0 > 0;
@@ -180,10 +215,10 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
         assembly {
             positionId := calldataload(performData.offset)
         }
-        (bool limitOrderFulfilled, uint128 liquidity) = checkUpkeepInternal(
+        (bool upkeepNeeded, uint128 liquidity) = checkUpkeepInternal(
             positionId
         );
-        require(limitOrderFulfilled, "condition not met");
+        require(upkeepNeeded, "condition not met");
         decreaseLiquidity(positionId, liquidity, 0, 0);
         collect(positionId);
     }

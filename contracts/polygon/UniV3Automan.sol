@@ -7,26 +7,30 @@ import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol";
 import "@uniswap/v3-core/contracts/libraries/TickMath.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol";
-import "@uniswap/v3-periphery/contracts/libraries/PoolAddress.sol";
 import "@uniswap/v3-periphery/contracts/libraries/LiquidityAmounts.sol";
+
+import "./libraries/Utils.sol";
 
 contract UniV3Automan is IERC721Receiver {
     using SafeERC20 for IERC20;
     using TickMath for int24;
 
     INonfungiblePositionManager immutable NFPM;
-    //        internal constant UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER =
-    //        INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
     address immutable factory;
-    //        0x1F98431c8aD98523631AE4a59f267346ea31F984;
 
-    // Position id to zeroForOne mapping, indicating whether a given position is
-    // for a limit order exchanging from token0 for token1 or the other way around.
-    mapping(uint256 => bool) positionIdToZeroForOne;
+    struct LimitOrder {
+        // User who placed the order
+        address owner;
+        // If exchanging from token0 to token1
+        bool isZeroForOne;
+        bool completed;
+        uint256 upkeepID;
+    }
 
-    // Position id to owner address mapping. Owner is the user that placed the
-    // limit order.
-    mapping(uint256 => address) positionIdToOwner;
+    // Position id to limit order mapping
+    mapping(uint256 => LimitOrder) public orderInfo;
+    // List of limit orders
+    uint256[] public orderBook;
 
     constructor(
         INonfungiblePositionManager nonfungiblePositionManager,
@@ -40,8 +44,6 @@ contract UniV3Automan is IERC721Receiver {
         uint256 positionId
     ) internal view returns (int24, int24, uint128, uint256, uint256) {
         (
-            ,
-            ,
             address token0,
             address token1,
             uint24 fee,
@@ -50,17 +52,10 @@ contract UniV3Automan is IERC721Receiver {
             uint128 liquidity,
             ,
             ,
-            ,
 
         ) = positions(positionId);
-        PoolAddress.PoolKey memory pool_key = PoolAddress.PoolKey(
-            token0,
-            token1,
-            fee
-        );
-        (uint160 sqrtPriceX96, , , , , , ) = IUniswapV3PoolState(
-            PoolAddress.computeAddress(factory, pool_key)
-        ).slot0();
+        address pool = computePoolAddress(factory, token0, token1, fee);
+        (uint160 sqrtPriceX96, , , , , , ) = IUniswapV3PoolState(pool).slot0();
 
         // Find current amount of the two tokens in the liquidity position.
         (uint256 amount0, uint256 amount1) = LiquidityAmounts
@@ -79,36 +74,52 @@ contract UniV3Automan is IERC721Receiver {
         public
         view
         returns (
-            uint96 nonce,
-            address operator,
             address token0,
             address token1,
             uint24 fee,
             int24 tickLower,
             int24 tickUpper,
             uint128 liquidity,
-            uint256 feeGrowthInside0LastX128,
-            uint256 feeGrowthInside1LastX128,
             uint128 tokensOwed0,
             uint128 tokensOwed1
         )
     {
         // TODO: To be optimized
-        return NFPM.positions(tokenId);
+        (
+            ,
+            ,
+            address token0,
+            address token1,
+            uint24 fee,
+            int24 tickLower,
+            int24 tickUpper,
+            uint128 liquidity,
+            ,
+            ,
+            uint128 tokensOwed0,
+            uint128 tokensOwed1
+        ) = NFPM.positions(tokenId);
     }
 
     /// @notice Creates a new position wrapped in a NFT
     /// @dev Call this when the pool does exist and is initialized. Note that if the pool is created but not initialized
     /// a method does not exist, i.e. the pool is assumed to be initialized.
-    /// @param params The params necessary to mint a position, encoded as `MintParams` in calldata
+    /// @param amount0Desired The desired amount of token0 to be spent
+    /// @param amount1Desired The desired amount of token1 to be spent
     /// @return tokenId The ID of the token that represents the minted position
     /// @return liquidity The amount of liquidity for this position
     /// @return amount0 The amount of token0
     /// @return amount1 The amount of token1
     function mint(
-        INonfungiblePositionManager.MintParams memory params
+        address token0,
+        address token1,
+        uint24 fee,
+        int24 tickLower,
+        int24 tickUpper,
+        uint256 amount0Desired,
+        uint256 amount1Desired
     )
-        internal
+        public
         returns (
             uint256 tokenId,
             uint128 liquidity,
@@ -129,24 +140,49 @@ contract UniV3Automan is IERC721Receiver {
         IERC20(params.token0).safeApprove(address(NFPM), params.amount0Desired);
         IERC20(params.token1).safeApprove(address(NFPM), params.amount1Desired);
         // TODO: refund
-        return NFPM.mint{value: msg.value}(params);
+
+        return
+            NFPM.mint{value: msg.value}(
+                INonfungiblePositionManager.MintParams({
+                    token0: token0,
+                    token1: token1,
+                    fee: fee,
+                    tickLower: tickLower,
+                    tickUpper: tickUpper,
+                    amount0Desired: amount0Desired,
+                    amount1Desired: amount1Desired,
+                    amount0Min: 0,
+                    amount1Min: 0,
+                    recipient: address(this),
+                    deadline: type(uint256).max
+                })
+            );
     }
 
     /// @notice Increases the amount of liquidity in a position, with tokens paid by the `msg.sender`
-    /// @param params tokenId The ID of the token for which liquidity is being increased,
-    /// amount0Desired The desired amount of token0 to be spent,
-    /// amount1Desired The desired amount of token1 to be spent,
-    /// amount0Min The minimum amount of token0 to spend, which serves as a slippage check,
-    /// amount1Min The minimum amount of token1 to spend, which serves as a slippage check,
-    /// deadline The time by which the transaction must be included to effect the change
+    /// @param tokenId The ID of the token for which liquidity is being increased
+    /// @param amount0Desired The desired amount of token0 to be spent
+    /// @param amount1Desired The desired amount of token1 to be spent
     /// @return liquidity The new liquidity amount as a result of the increase
     /// @return amount0 The amount of token0 to acheive resulting liquidity
     /// @return amount1 The amount of token1 to acheive resulting liquidity
     function increaseLiquidity(
-        INonfungiblePositionManager.IncreaseLiquidityParams memory params
-    ) internal returns (uint128 liquidity, uint256 amount0, uint256 amount1) {
+        uint256 tokenId,
+        uint256 amount0Desired,
+        uint256 amount1Desired
+    ) public returns (uint128 liquidity, uint256 amount0, uint256 amount1) {
         // TODO: approve, transfer
-        return NFPM.increaseLiquidity{value: msg.value}(params);
+        return
+            NFPM.increaseLiquidity{value: msg.value}(
+                INonfungiblePositionManager.IncreaseLiquidityParams({
+                    tokenId: tokenId,
+                    amount0Desired: amount0Desired,
+                    amount1Desired: amount1Desired,
+                    amount0Min: 0,
+                    amount1Min: 0,
+                    deadline: type(uint256).max
+                })
+            );
     }
 
     /// @notice Decreases the amount of liquidity in a position and accounts it to the position
@@ -161,7 +197,7 @@ contract UniV3Automan is IERC721Receiver {
         uint128 liquidity,
         uint256 amount0Min,
         uint256 amount1Min
-    ) internal returns (uint256 amount0, uint256 amount1) {
+    ) public returns (uint256 amount0, uint256 amount1) {
         return
             NFPM.decreaseLiquidity(
                 INonfungiblePositionManager.DecreaseLiquidityParams({
@@ -185,7 +221,7 @@ contract UniV3Automan is IERC721Receiver {
             NFPM.collect(
                 INonfungiblePositionManager.CollectParams({
                     tokenId: tokenId,
-                    recipient: positionIdToOwner[tokenId],
+                    recipient: orderInfo[tokenId].owner,
                     amount0Max: type(uint128).max,
                     amount1Max: type(uint128).max
                 })
