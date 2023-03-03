@@ -95,7 +95,7 @@ export const Swap = () => {
         placeholder="0"
         onChange={(value: string) => setAmount(value)}
         onError={(text: string) => !text}
-        notes="weth"
+        notes={tokenA?.ticker??""}
         submitButton={
           tokenA &&
           tokenB &&

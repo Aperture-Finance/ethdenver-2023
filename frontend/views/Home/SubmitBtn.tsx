@@ -6,6 +6,7 @@ import ERC20ABI from "@/config/ABI/ERC20ABI.json";
 import { useFetchUserToken } from "@/hooks/useFetchUserToken";
 import { ERC20TokenMap } from "@/config/token/tokenMap";
 import { utils } from "ethers";
+import { useEffect } from "react";
 
 export interface SubmitBtnProps {
   ticker: string;
@@ -17,11 +18,14 @@ export interface ErrorBtnProps {
 }
 
 const SubmitBtn: React.FC<SubmitBtnProps> = ({ ticker, contractType }) => {
+  ticker = ticker.toLocaleLowerCase();
   const { chain } = useNetwork();
   const {
     data: tokenData,
     isLoading: tokenIsLoading,
     error: tokenError,
+    // mutate: tokenMutate,
+    // isValidating: tokenisValidating,
   } = useFetchUserToken(
     getTokenAddress(ticker, chain!.id),
     getstrategyAddress(contractType, chain!.id)
@@ -40,6 +44,18 @@ const SubmitBtn: React.FC<SubmitBtnProps> = ({ ticker, contractType }) => {
     write: approve,
   } = useContractWrite(approveConfig);
 
+  // const { config: revertapproveConfig } = usePrepareContractWrite({
+  //   address: getTokenAddress(ticker, chain!.id),
+  //   abi: ERC20ABI,
+  //   functionName: "approve",
+  //   args: [getstrategyAddress(contractType, chain!.id), "0x00"],
+  // });
+  // const {
+  //   data,
+  //   isLoading,
+  //   write: revert,
+  // } = useContractWrite(revertapproveConfig);
+
   const { config: depsitConfig } = usePrepareContractWrite({
     address: getTokenAddress(ticker, chain!.id),
     abi: ERC20ABI,
@@ -53,34 +69,59 @@ const SubmitBtn: React.FC<SubmitBtnProps> = ({ ticker, contractType }) => {
     write: deposit,
   } = useContractWrite(depsitConfig);
 
+  // useEffect(() => {
+  //   tokenMutate();
+  // }, [approveIsSuccess]);
+
+  console.log(approveData, approveIsLoading, approveIsSuccess);
+
   return (
-    <SubmitButton
-      error={tokenIsLoading && !tokenError}
-      onClick={
+    <>
+      approveIsLoading: {String(approveIsLoading)} <br/>
+      approveIsSuccess: {String(approveIsSuccess)}
+      {/* <button onClick={() => revert?.()}>revert</button> */}
+      {Number(
         utils.formatUnits(
           tokenData?.allowanceBN,
           ERC20TokenMap[ticker].decimals
-        ) //todo
-          ? deposit()
-          : approve()
-      }
-    >
-      {tokenIsLoading
-        ? "Loading"
-        : tokenError
-        ? `Failed fatch ${ticker} data`
-        : utils.formatUnits(
-            tokenData?.allowanceBN,
-            ERC20TokenMap[ticker].decimals
-          )
-        ? "Deposit"
-        : "Approve"}
-    </SubmitButton>
+        )
+      ) <= 0 ? (
+        <SubmitButton
+          error={tokenIsLoading && !tokenError}
+          onClick={() => {
+            approve?.();
+          }}
+        >
+          {tokenIsLoading
+            ? "Loading"
+            : tokenError
+            ? `Failed fatch ${ticker} data`
+            : "Approve"}
+        </SubmitButton>
+      ) : (
+        <SubmitButton
+          error={tokenIsLoading && !tokenError}
+          onClick={() => {
+            deposit?.();
+          }}
+        >
+          {tokenIsLoading
+            ? "Loading"
+            : tokenError
+            ? `Failed fatch ${ticker} data`
+            : "Deposit"}
+        </SubmitButton>
+      )}
+    </>
   );
 };
 
 export default SubmitBtn;
 
 export const ErrorBtn: React.FC<ErrorBtnProps> = ({ text }) => {
-  return <SubmitButton error>{text}</SubmitButton>;
+  return (
+    <div>
+      <SubmitButton error>{text}</SubmitButton>
+    </div>
+  );
 };

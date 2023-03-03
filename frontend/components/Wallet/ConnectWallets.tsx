@@ -12,7 +12,7 @@ import {
   OkxIcon,
 } from "@aperture/assetkit";
 import styled from "styled-components";
-import { Box } from "@/packages/uikit/src";
+import { Box, Title } from "@/packages/uikit/src";
 
 const Wrapper = styled.div`
   width: 210px;
@@ -28,7 +28,8 @@ const WalletBtn = styled(Box)`
   cursor: pointer;
   transition: 0.5s;
   :hover {
-    background: ${({ theme }) => theme.colors.gray1};
+    background: white;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.1);
   }
 `;
 const iconStyle = {
@@ -37,7 +38,12 @@ const iconStyle = {
   marginTop: "10px",
   marginBottom: "10px",
 };
-const ConnectWallets = () => {
+const StyledTitle = styled(Title)`
+  text-align: center;
+  width: 100%;
+`;
+
+const ConnectWallets = (props:any) => {
   const { address, connector, isConnected } = useAccount();
   const { chain } = useNetwork();
   const { connect, connectors, error, isLoading, pendingConnector } =
@@ -53,9 +59,10 @@ const ConnectWallets = () => {
     <OkxIcon style={iconStyle} />,
   ];
   return (
-    <div>
-      isConnected:{isConnected.toString()}<br/>
-      {isLoading ? "Connecting..." : 'Connect Wallet'}
+    <div {...props}>
+      <br/>
+      {/* isConnected:{isConnected.toString()}<br/>
+      {isLoading ? "Connecting..." : 'Connect Wallet'} */}
       <Wrapper>
         {connectors.map((connector, index) => (
           <WalletBtn
@@ -71,6 +78,8 @@ const ConnectWallets = () => {
           </WalletBtn>
         ))}
       </Wrapper>
+      <StyledTitle>{isLoading && "Connecting..."}</StyledTitle>
+      
     </div>
   );
 };
