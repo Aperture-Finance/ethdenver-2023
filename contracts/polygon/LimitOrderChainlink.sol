@@ -3,17 +3,10 @@ pragma solidity ^0.7.0;
 pragma abicoder v2;
 
 import "@chainlink/contracts/src/v0.7/interfaces/KeeperCompatibleInterface.sol";
-import "@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol";
-import "@uniswap/v3-core/contracts/libraries/TickMath.sol";
-import "@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol";
-import "@uniswap/v3-periphery/contracts/libraries/PoolAddress.sol";
-import "@uniswap/v3-periphery/contracts/libraries/LiquidityAmounts.sol";
 
-import {UniV3Automan} from "./UniV3Automan.sol";
+import "./UniV3Automan.sol";
 
 contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
-    using TickMath for int24;
-
     constructor(
         INonfungiblePositionManager nonfungiblePositionManager,
         address V3_FACTORY
@@ -51,23 +44,12 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
         uint256 positionId
     ) internal view returns (bool, uint128) {
         (
-            PoolAddress.PoolKey memory pool_key,
             int24 tickLower,
             int24 tickUpper,
-            uint128 liquidity
+            uint128 liquidity,
+            uint256 amount0,
+            uint256 amount1
         ) = getLiquidityPositionInfo(positionId);
-        address pool_address = PoolAddress.computeAddress(factory, pool_key);
-        (uint160 sqrtPriceX96, , , , , , ) = IUniswapV3PoolState(pool_address)
-            .slot0();
-
-        // Find current amount of the two tokens in the liquidity position.
-        (uint256 amount0, uint256 amount1) = LiquidityAmounts
-            .getAmountsForLiquidity(
-                sqrtPriceX96,
-                tickLower.getSqrtRatioAtTick(),
-                tickUpper.getSqrtRatioAtTick(),
-                liquidity
-            );
 
         bool upkeepNeeded;
         if (positionIdToZeroForOne[positionId]) {
@@ -100,15 +82,7 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
             positionId
         );
         require(limitOrderFulfilled, "condition not met");
-        decreaseLiquidity(
-            INonfungiblePositionManager.DecreaseLiquidityParams({
-                tokenId: positionId,
-                liquidity: liquidity,
-                amount0Min: 0,
-                amount1Min: 0,
-                deadline: type(uint256).max
-            })
-        );
+        decreaseLiquidity(positionId, liquidity, 0, 0);
         collect(positionId);
     }
 }
