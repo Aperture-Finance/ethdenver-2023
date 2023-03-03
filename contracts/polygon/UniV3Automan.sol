@@ -2,6 +2,7 @@
 pragma solidity ^0.7.0;
 pragma abicoder v2;
 
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol";
 import "@uniswap/v3-periphery/contracts/libraries/PoolAddress.sol";
@@ -10,6 +11,8 @@ import "@uniswap/v3-periphery/contracts/libraries/LiquidityAmounts.sol";
 import "./interfaces/IUniV3Automan.sol";
 
 contract UniV3Automan is IUniV3Automan {
+    using SafeERC20 for IERC20;
+
     INonfungiblePositionManager immutable NFPM;
     //        internal constant UNISWAP_V3_NONFUNGIBLE_POSITION_MANAGER =
     //        INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
@@ -101,6 +104,19 @@ contract UniV3Automan is IUniV3Automan {
             uint256 amount1
         )
     {
+        IERC20(params.token0).safeTransferFrom(
+            msg.sender,
+            address(this),
+            params.amount0Desired
+        );
+        IERC20(params.token1).safeTransferFrom(
+            msg.sender,
+            address(this),
+            params.amount1Desired
+        );
+        IERC20(params.token0).approve(address(NFPM), params.amount0Desired);
+        IERC20(params.token1).approve(address(NFPM), params.amount1Desired);
+        // TODO: TICK_SPACING, refund
         return NFPM.mint{value: msg.value}(params);
     }
 
@@ -113,6 +129,7 @@ contract UniV3Automan is IUniV3Automan {
         override
         returns (uint128 liquidity, uint256 amount0, uint256 amount1)
     {
+        // TODO: approve, transfer
         return NFPM.increaseLiquidity{value: msg.value}(params);
     }
 
@@ -125,9 +142,17 @@ contract UniV3Automan is IUniV3Automan {
 
     /// @inheritdoc IUniV3Automan
     function collect(
-        INonfungiblePositionManager.CollectParams memory params
-    ) public payable override returns (uint256 amount0, uint256 amount1) {
-        return NFPM.collect{value: msg.value}(params);
+        uint256 tokenId
+    ) public override returns (uint256 amount0, uint256 amount1) {
+        return
+            NFPM.collect(
+                INonfungiblePositionManager.CollectParams({
+                    tokenId: tokenId,
+                    recipient: positionIdToOwner[tokenId],
+                    amount0Max: type(uint128).max,
+                    amount1Max: type(uint128).max
+                })
+            );
     }
 
     /// @inheritdoc IUniV3Automan
@@ -140,7 +165,7 @@ contract UniV3Automan is IUniV3Automan {
         address from,
         uint tokenId,
         bytes calldata
-    ) external returns (bytes4) {
+    ) external pure override returns (bytes4) {
         return IERC721Receiver.onERC721Received.selector;
     }
 }

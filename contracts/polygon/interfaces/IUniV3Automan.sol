@@ -2,7 +2,7 @@
 pragma solidity ^0.7.0;
 pragma abicoder v2;
 
-import '@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol';
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol";
 
 interface IUniV3Automan is IERC721Receiver {
@@ -91,15 +91,12 @@ interface IUniV3Automan is IERC721Receiver {
     ) external payable returns (uint256 amount0, uint256 amount1);
 
     /// @notice Collects up to a maximum amount of fees owed to a specific position to the recipient
-    /// @param params tokenId The ID of the NFT for which tokens are being collected,
-    /// recipient The account that should receive the tokens,
-    /// amount0Max The maximum amount of token0 to collect,
-    /// amount1Max The maximum amount of token1 to collect
+    /// @param tokenId The ID of the NFT for which tokens are being collected
     /// @return amount0 The amount of fees collected in token0
     /// @return amount1 The amount of fees collected in token1
     function collect(
-        INonfungiblePositionManager.CollectParams memory params
-    ) external payable returns (uint256 amount0, uint256 amount1);
+        uint256 tokenId
+    ) external returns (uint256 amount0, uint256 amount1);
 
     /// @notice Burns a token ID, which deletes it from the NFT contract. The token must have 0 liquidity and all tokens
     /// must be collected first.

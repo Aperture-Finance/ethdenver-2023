@@ -57,9 +57,8 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
             uint128 liquidity
         ) = getLiquidityPositionInfo(positionId);
         address pool_address = PoolAddress.computeAddress(factory, pool_key);
-        (uint160 sqrtPriceX96, , , , , , ) = IUniswapV3PoolState(
-            pool_address
-        ).slot0();
+        (uint160 sqrtPriceX96, , , , , , ) = IUniswapV3PoolState(pool_address)
+            .slot0();
 
         // Find current amount of the two tokens in the liquidity position.
         (uint256 amount0, uint256 amount1) = LiquidityAmounts
@@ -110,13 +109,6 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
                 deadline: type(uint256).max
             })
         );
-        collect(
-            INonfungiblePositionManager.CollectParams({
-                tokenId: positionId,
-                recipient: positionIdToOwner[positionId],
-                amount0Max: type(uint128).max,
-                amount1Max: type(uint128).max
-            })
-        );
+        collect(positionId);
     }
 }
