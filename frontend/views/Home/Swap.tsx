@@ -37,6 +37,7 @@ export const Swap = () => {
   const [tokenA, setTokenA] = useState<Token | null>(null);
   const [tokenB, setTokenB] = useState<Token | null>(null);
   const [ratio, setRatio] = useState<string | null>(null);
+  const [feeTier, setFeeTier] = useState<number>(5);
   const [amount, setAmount] = useState<string | null>(null);
   const getButtonText = (): string => {
     if (!(tokenA && tokenB && tokenA.ticker !== tokenB.ticker)) {
@@ -84,9 +85,7 @@ export const Swap = () => {
       <Grid>
         <Subtitle>Fee Tier: </Subtitle>
         <ButtonGroups
-          onSelect={(feeTier: Number) =>
-            console.log("feeTier selected: ", feeTier)
-          }
+          onSelect={(feeTier: number) => setFeeTier(feeTier * 100)}
         />
       </Grid>
       <Subtitle>Deposit Amount:</Subtitle>
@@ -95,7 +94,7 @@ export const Swap = () => {
         placeholder="0"
         onChange={(value: string) => setAmount(value)}
         onError={(text: string) => !text}
-        notes={tokenA?.ticker??""}
+        notes={tokenA?.ticker ?? ""}
         submitButton={
           tokenA &&
           tokenB &&
@@ -105,7 +104,14 @@ export const Swap = () => {
           amount &&
           Number(amount) > 0 &&
           Number(amount) < Number(tokenA.balance) ? (
-            <SubmitBtn ticker={tokenA?.ticker} contractType="limitOrder" />
+            <SubmitBtn
+              tokenA={tokenA}
+              tokenB={tokenB}
+              contractType="limitOrder"
+              feeTier={feeTier}
+              ratio={Number(ratio)}
+              amount={Number(amount)}
+            />
           ) : (
             <ErrorBtn
               text={

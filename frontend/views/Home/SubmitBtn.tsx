@@ -3,83 +3,87 @@ import { getstrategyAddress, getTokenAddress } from "@/config/contracts";
 import { SubmitBtn as SubmitButton } from "@/packages/uikit/src/components/InputGroup/TextInput";
 import { useContractWrite, useNetwork, usePrepareContractWrite } from "wagmi";
 import ERC20ABI from "@/config/ABI/ERC20ABI.json";
+import Dummy from "@/config/ABI/Dummy.json";
 import { useFetchUserToken } from "@/hooks/useFetchUserToken";
 import { ERC20TokenMap } from "@/config/token/tokenMap";
 import { utils } from "ethers";
-import { useEffect } from "react";
+import { useState } from "react";
+import { Token } from "@/packages/uikit/src";
 
 export interface SubmitBtnProps {
-  ticker: string;
+  tokenA: Token;
+  tokenB: Token;
   contractType: string;
+  feeTier: number;
+  ratio: number;
+  amount: number;
 }
 
 export interface ErrorBtnProps {
   text: string;
 }
 
-const SubmitBtn: React.FC<SubmitBtnProps> = ({ ticker, contractType }) => {
-  ticker = ticker.toLocaleLowerCase();
+const SubmitBtn: React.FC<SubmitBtnProps> = ({
+  tokenA,
+  tokenB,
+  contractType,
+  feeTier,
+  ratio,
+  amount,
+}) => {
+  const ticker = tokenA.ticker.toLocaleLowerCase();
   const { chain } = useNetwork();
   const {
     data: tokenData,
     isLoading: tokenIsLoading,
     error: tokenError,
-    // mutate: tokenMutate,
-    // isValidating: tokenisValidating,
+    mutate,
+    isValidating: tokenisValidating,
   } = useFetchUserToken(
     getTokenAddress(ticker, chain!.id),
     getstrategyAddress(contractType, chain!.id)
   );
 
+  //aprove
   const { config: approveConfig } = usePrepareContractWrite({
     address: getTokenAddress(ticker, chain!.id),
     abi: ERC20ABI,
     functionName: "approve",
     args: [getstrategyAddress(contractType, chain!.id), MAX_UINT256],
   });
-  const {
-    data: approveData,
-    isLoading: approveIsLoading,
-    isSuccess: approveIsSuccess,
-    write: approve,
-  } = useContractWrite(approveConfig);
-
-  // const { config: revertapproveConfig } = usePrepareContractWrite({
-  //   address: getTokenAddress(ticker, chain!.id),
-  //   abi: ERC20ABI,
-  //   functionName: "approve",
-  //   args: [getstrategyAddress(contractType, chain!.id), "0x00"],
-  // });
-  // const {
-  //   data,
-  //   isLoading,
-  //   write: revert,
-  // } = useContractWrite(revertapproveConfig);
-
-  const { config: depsitConfig } = usePrepareContractWrite({
+  const { write: approve } = useContractWrite(approveConfig);
+  //revert
+  const { config: revertapproveConfig } = usePrepareContractWrite({
     address: getTokenAddress(ticker, chain!.id),
     abi: ERC20ABI,
-    functionName: "approve", // todo
-    args: [getstrategyAddress(contractType, chain!.id), MAX_UINT256], //todo
+    functionName: "approve",
+    args: [getstrategyAddress(contractType, chain!.id), "0x00"],
+  });
+  const { write: revert } = useContractWrite(revertapproveConfig);
+  //deposit
+  const { config: depsitConfig } = usePrepareContractWrite({
+    address: getstrategyAddress(contractType, chain!.id),
+    abi: Dummy,
+    functionName: "openPositionForLimitOrder", // todo
+    args: [
+      getTokenAddress(tokenA.ticker.toLocaleLowerCase(), chain!.id),
+      getTokenAddress(tokenB.ticker.toLocaleLowerCase(), chain!.id),
+      feeTier,
+      amount,
+      ratio,
+    ], //todo
   });
   const {
-    data: depositData,
-    isLoading: depositIsLoading,
-    isSuccess: depositIsSuccess,
     write: deposit,
+    data,
+    isLoading,
+    isSuccess,
   } = useContractWrite(depsitConfig);
-
-  // useEffect(() => {
-  //   tokenMutate();
-  // }, [approveIsSuccess]);
-
-  console.log(approveData, approveIsLoading, approveIsSuccess);
-
+  console.log("deposit:", data, isLoading, isSuccess);
   return (
     <>
-      approveIsLoading: {String(approveIsLoading)} <br/>
-      approveIsSuccess: {String(approveIsSuccess)}
-      {/* <button onClick={() => revert?.()}>revert</button> */}
+      <button onClick={() => revert?.()}>revert</button>
+      <button onClick={() => mutate()}>mutate</button>
       {Number(
         utils.formatUnits(
           tokenData?.allowanceBN,

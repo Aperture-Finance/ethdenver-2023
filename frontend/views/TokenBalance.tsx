@@ -48,7 +48,7 @@ const TokenBalance = (props: { ticker: string }) => {
       isSuccess: isApproveSuccess,
       write,
     } = useContractWrite(config);
-    console.log(approveData, isApproveLoading, isApproveSuccess);
+    // console.log(approveData, isApproveLoading, isApproveSuccess);
 
     return (
       <div>

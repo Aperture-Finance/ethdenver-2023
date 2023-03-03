@@ -1,0 +1,26 @@
+[
+  {
+    "inputs": [],
+    "name": "getCount",
+    "outputs": [{ "internalType": "int256", "name": "", "type": "int256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "inputToken", "type": "address" },
+      { "internalType": "address", "name": "outputToken", "type": "address" },
+      { "internalType": "uint24", "name": "feeTier", "type": "uint24" },
+      {
+        "internalType": "uint256",
+        "name": "inputTokenAmount",
+        "type": "uint256"
+      },
+      { "internalType": "uint256", "name": "limitPrice", "type": "uint256" }
+    ],
+    "name": "openPositionForLimitOrder",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
