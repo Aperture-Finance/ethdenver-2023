@@ -10,7 +10,7 @@ const StyledBox = styled(Box)`
   max-width: 1000px;
   width: 100%;
   height: 521px;
-  margin: auto;
+  margin: auto auto;
 `;
 const Wrapper = styled.div`
   display: grid;
@@ -19,7 +19,7 @@ const Wrapper = styled.div`
 const HR = styled.hr`
   border-top: 1px solid ${({ theme }) => theme.colors.gray2};
   width: calc(100% - 32px);
-`; 
+`;
 const StyledTitle = styled(Title)`
   width: 100%;
   text-align: center;
@@ -30,6 +30,7 @@ const StyledSMBtn = styled(SMBtn)`
   right: 0;
   top: -5px;
 `;
+
 const StyledConnectWallets = styled(ConnectWallets)`
   margin: auto;
   width: fit-content;
@@ -38,6 +39,7 @@ const StyledConnectWallets = styled(ConnectWallets)`
 export const LimitOrder = () => {
   const { disconnect } = useDisconnect();
   const { address, connector, isConnected } = useAccount();
+
   return (
     <StyledBox>
       <StyledTitle>
