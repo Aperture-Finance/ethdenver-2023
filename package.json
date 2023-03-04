@@ -11,6 +11,7 @@
     "test:polygon": "truffle test --config=truffle-config.polygon.js --network=polygon_infura_testnet",
     "compile:polygon": "truffle compile --config=truffle-config.polygon.js",
     "migrate:polygon": "truffle migrate --config=truffle-config.polygon.js --network=polygon_infura_testnet",
+    "verify:polygon": "truffle run verify LimitOrderChainlink --config=truffle-config.polygon.js --network=polygon_infura_testnet",
     "prettier": "prettier -w {contracts,test}/**/*.{js,ts,sol}"
   },
   "repository": {

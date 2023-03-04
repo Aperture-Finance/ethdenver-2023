@@ -97,33 +97,33 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
             uint256 amount1Desired
         )
     {
-        int24 currentTick;
-        int24 tickSpacing;
-        {
-            (, currentTick, , , , , ) = pool.slot0();
-            tickSpacing = (pool).tickSpacing();
-        }
+        (, int24 currentTick, , , , , ) = pool.slot0();
+        int24 tickSpacing = pool.tickSpacing();
         if (isZeroForOne) {
+            // Sell token0 at higher tick
             uint160 sqrtLimitPriceX96 = uint160(
                 Utils.sqrt(outputAmount.mulDiv(1 << 192, inputAmount))
             );
-            tickLower = Utils.matchTickSpacing(
+            tickUpper = Utils.matchTickSpacingDown(
                 TickMath.getTickAtSqrtRatio(sqrtLimitPriceX96),
                 tickSpacing
             );
-            tickUpper = currentTick;
+            tickLower = Utils.matchTickSpacingUp(currentTick, tickSpacing);
             (amount0Desired, amount1Desired) = (inputAmount, 0);
         } else {
+            // Sell token1 at lower tick
             uint160 sqrtLimitPriceX96 = uint160(
                 Utils.sqrt(inputAmount.mulDiv(1 << 192, outputAmount))
             );
-            tickUpper = Utils.matchTickSpacing(
+            tickLower = Utils.matchTickSpacingUp(
                 TickMath.getTickAtSqrtRatio(sqrtLimitPriceX96),
                 tickSpacing
             );
-            tickLower = currentTick;
+            tickUpper = Utils.matchTickSpacingDown(currentTick, tickSpacing);
             (amount0Desired, amount1Desired) = (0, inputAmount);
         }
+        if (tickLower > tickUpper)
+            revert("Limit price should be higher than current");
     }
 
     /// @notice Create a Uni v3 LP and limit order
@@ -173,7 +173,7 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
             uint32(2000000),
             address(this),
             abi.encode(tokenId),
-            uint96(0),
+            uint96(5000000000000000000),
             uint8(0)
         );
         orderBook.push(tokenId);

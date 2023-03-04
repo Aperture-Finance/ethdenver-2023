@@ -123,13 +123,13 @@ contract UniV3Automan is IERC721Receiver {
         posInfo.completed = order.completed;
         posInfo.upkeepID = order.upkeepID;
         if (posInfo.isZeroForOne) {
-            posInfo.desiredAmount = LiquidityAmounts.getAmount0ForLiquidity(
+            posInfo.desiredAmount = LiquidityAmounts.getAmount1ForLiquidity(
                 sqrtLowerPriceX96,
                 sqrtUpperPriceX96,
                 posInfo.liquidity
             );
         } else {
-            posInfo.desiredAmount = LiquidityAmounts.getAmount1ForLiquidity(
+            posInfo.desiredAmount = LiquidityAmounts.getAmount0ForLiquidity(
                 sqrtLowerPriceX96,
                 sqrtUpperPriceX96,
                 posInfo.liquidity
@@ -177,24 +177,29 @@ contract UniV3Automan is IERC721Receiver {
         ) = NFPM.positions(tokenId);
     }
 
+    /// @dev Pull tokens from caller and approve the pool to spend
     function transferAndApprove(
         address token0,
         address token1,
         uint256 amount0Desired,
         uint256 amount1Desired
     ) internal {
-        IERC20(token0).safeTransferFrom(
-            msg.sender,
-            address(this),
-            amount0Desired
-        );
-        IERC20(token1).safeTransferFrom(
-            msg.sender,
-            address(this),
-            amount1Desired
-        );
-        IERC20(token0).safeApprove(address(NFPM), amount0Desired);
-        IERC20(token1).safeApprove(address(NFPM), amount1Desired);
+        if (amount0Desired > 0) {
+            IERC20(token0).safeTransferFrom(
+                msg.sender,
+                address(this),
+                amount0Desired
+            );
+            IERC20(token0).safeApprove(address(NFPM), amount0Desired);
+        }
+        if (amount1Desired > 0) {
+            IERC20(token1).safeTransferFrom(
+                msg.sender,
+                address(this),
+                amount1Desired
+            );
+            IERC20(token1).safeApprove(address(NFPM), amount1Desired);
+        }
     }
 
     function refundSurplus(

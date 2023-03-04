@@ -4,13 +4,24 @@ pragma solidity ^0.7.0;
 import "@uniswap/v3-periphery/contracts/libraries/PoolAddress.sol";
 
 library Utils {
-    function matchTickSpacing(
+    function matchTickSpacingDown(
         int24 tick,
         int24 tickSpacing
     ) internal pure returns (int24) {
         uint absTick = tick < 0 ? uint(-int(tick)) : uint(int(tick));
         absTick -= absTick % uint(int(tickSpacing));
-        return tick < 0 ? -int24(int(absTick)) : int24(int(absTick));
+        return
+            tick < 0 ? -int24(int(absTick)) - tickSpacing : int24(int(absTick));
+    }
+
+    function matchTickSpacingUp(
+        int24 tick,
+        int24 tickSpacing
+    ) internal pure returns (int24) {
+        uint absTick = tick < 0 ? uint(-int(tick)) : uint(int(tick));
+        absTick -= absTick % uint(int(tickSpacing));
+        return
+            tick < 0 ? -int24(int(absTick)) : int24(int(absTick)) + tickSpacing;
     }
 
     /// @notice Sorts two tokens to return token0 and token1
