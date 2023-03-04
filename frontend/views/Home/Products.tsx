@@ -38,7 +38,7 @@ const ZIndex = styled.div`
 `;
 const Title = styled.div<{ hovered?: boolean }>`
   margin: auto;
-  font-size: ${({ hovered }) => (hovered ? "22px" : "12px")};
+  font-size: ${({ hovered }) => (hovered ? "22px" : "15px")};
   font-weight: ${({ hovered }) => (hovered ? "500" : "400")};
   padding: ${({ hovered }) => (hovered ? "10px" : "0px")};
   ${({ hovered }) =>

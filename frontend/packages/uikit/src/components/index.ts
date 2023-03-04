@@ -7,7 +7,6 @@ export * from './Tag'
 export * from './TextInput'
 export * from './ThemeSwitch'
 export * from './Typography'
-export * from './PositionCard'
 
 export {}
 // somthing wrong here tbfo

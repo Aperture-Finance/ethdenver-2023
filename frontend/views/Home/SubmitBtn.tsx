@@ -9,6 +9,7 @@ import { ERC20TokenMap } from "@/config/token/tokenMap";
 import { utils } from "ethers";
 import { useState } from "react";
 import { SMBtn, Token } from "@/packages/uikit/src";
+import { useFetchUserPositions } from "@/hooks/useFetchUserPosition";
 
 export interface SubmitBtnProps {
   tokenA: Token;
@@ -73,6 +74,8 @@ const SubmitBtn: React.FC<SubmitBtnProps> = ({
       feeTier,
     ], //todo
   });
+
+  const {mutate: positionMutate} = useFetchUserPositions(getstrategyAddress(contractType, chain!.id))
   const {
     write: deposit,
     data,
@@ -114,7 +117,7 @@ const SubmitBtn: React.FC<SubmitBtnProps> = ({
             : "Deposit"}
         </SubmitButton>
       )}
-      <SMBtn onClick={() => mutate()} style={{padding:'0', marginLeft:'10px'}}>mutate</SMBtn>
+      <SMBtn onClick={() => {mutate(); positionMutate();}} style={{padding:'0', marginLeft:'10px'}}>mutate</SMBtn>
     </>
   );
 };

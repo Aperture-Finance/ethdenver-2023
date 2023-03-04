@@ -1,3 +1,4 @@
+import { PositionCard } from "@/components/PositionCard";
 import { getstrategyAddress } from "@/config/contracts";
 import { useFetchUserPositions } from "@/hooks/useFetchUserPosition";
 import {
@@ -8,7 +9,6 @@ import {
   InputGroup,
   TextInput,
   Title,
-  PositionCard,
 } from "@/packages/uikit/src";
 import styled from "styled-components";
 import { Arrow } from "./icon/down";
@@ -34,8 +34,8 @@ const StyledUsdcIcon = styled(UsdcIcon)`
 `;
 
 export const Positions = () => {
-  const {data, isLoading } = useFetchUserPositions(getstrategyAddress("limitOrder", 80001))
-  if (!isLoading) {console.log(data)}
+  const {data, error, isLoading } = useFetchUserPositions(getstrategyAddress("limitOrder", 80001))
+  if (!isLoading) {console.log("data position:",data)}
 
   const TokenList: [Token, Token] = [
     {
@@ -55,21 +55,16 @@ export const Positions = () => {
   return (
     <Wrapper>
       <Subtitle>Positions:</Subtitle>
-      <PositionCard
-        positionId="124314nji124"
+      {!error&& !isLoading &&(data.map((position:any, index:number) => (
+        <PositionCard
+        key={"position" + index}
+        positionId={index+1}
         tokens={TokenList}
         progress={10}
+        position={position}
       />
-      <PositionCard
-        positionId="124314nji124"
-        tokens={TokenList}
-        progress={50}
-      />
-      <PositionCard
-        positionId="124314nji124"
-        tokens={TokenList}
-        progress={100}
-      />
+      )))}
+      
     </Wrapper>
   );
 };

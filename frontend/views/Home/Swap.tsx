@@ -40,16 +40,16 @@ export const Swap = () => {
   const [ratio, setRatio] = useState<string | null>(null);
   const [feeTier, setFeeTier] = useState<number>(5);
   const [amount, setAmount] = useState<string | null>(null);
-  const { data: wethData, isLoading:wethisLoading} = useFetchUserToken(getTokenAddress('weth', 80001), getstrategyAddress("limitOrder", 80001));
-  const { data: usdcData, isLoading:usdcisLoading} = useFetchUserToken(getTokenAddress('usdc', 80001), getstrategyAddress("limitOrder", 80001));
-  if(!wethisLoading&&!usdcisLoading){
-    console.log(utils.formatUnits(wethData?.balanceBN, ERC20TokenMap.weth.decimals));
+  const { data: wethData, error: wethError, isLoading: wethisLoading, } = useFetchUserToken(getTokenAddress('weth', 80001), getstrategyAddress("limitOrder", 80001));
+  const { data: usdcData, error: usdcError, isLoading: usdcisLoading} = useFetchUserToken(getTokenAddress('usdc', 80001), getstrategyAddress("limitOrder", 80001));
   
-  TokenList[0].balance = Number(utils.formatUnits(wethData?.balanceBN, ERC20TokenMap.weth.decimals))
-  TokenList[1].balance = Number(utils.formatUnits(usdcData?.balanceBN, ERC20TokenMap.weth.decimals))
-  TokenList2[0].balance = Number(utils.formatUnits(wethData?.balanceBN, ERC20TokenMap.weth.decimals))
-  TokenList2[1].balance = Number(utils.formatUnits(usdcData?.balanceBN, ERC20TokenMap.weth.decimals))
+  if(!wethisLoading && !usdcisLoading && wethData && usdcData){
+    TokenList[0].balance = Number(utils.formatUnits(wethData?.balanceBN, ERC20TokenMap.weth.decimals))
+    TokenList[1].balance = Number(utils.formatUnits(usdcData?.balanceBN, ERC20TokenMap.weth.decimals))
+    TokenList2[0].balance = Number(utils.formatUnits(wethData?.balanceBN, ERC20TokenMap.weth.decimals))
+    TokenList2[1].balance = Number(utils.formatUnits(usdcData?.balanceBN, ERC20TokenMap.weth.decimals))
   }
+ 
   
   return (
     <Wrapper>

@@ -3,7 +3,7 @@ import {
   createMulticallContract,
 } from "@/utils/multicall";
 import useSWR from "swr/immutable";
-import ERC20ABI from "@/config/ABI/ERC20ABI.json";
+import LimitOrderABI from "@/config/ABI/LimitOrder.json";
 import { useAccount, useNetwork } from "wagmi";
 import { ERC20TokenMap } from "@/config/token/tokenMap";
 import { getTokenAddress } from "@/config/contracts";
@@ -29,7 +29,7 @@ async function getPositions(
   provider: providers.MulticallProvider,
   contractAddress: string
 ) {
-  const contract = createMulticallContract(contractAddress, ERC20ABI, provider); //to do
+  const contract = createMulticallContract(contractAddress, LimitOrderABI, provider); //to do
   const [positions] = await Promise.all([
     contract.allPositions(),
   ]);

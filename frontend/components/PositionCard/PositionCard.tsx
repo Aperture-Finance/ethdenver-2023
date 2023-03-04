@@ -1,8 +1,12 @@
 import React from "react";
 import styled from "styled-components";
 import { PositionCardProps } from "./types";
-import { Number, SubSubtitle, Subtitle } from "../Typography";
-import { Button, SMBtn } from "../Button";
+import { Number, SubSubtitle, Subtitle } from "@aperture/uikit";
+import { Button, SMBtn } from "@aperture/uikit";
+import { useContractWrite, useNetwork, usePrepareContractWrite } from "wagmi";
+import { getstrategyAddress, getTokenAddress } from "@/config/contracts";
+import LimitOrderABI from "@/config/ABI/LimitOrder.json";
+
 const StyledBox = styled.div`
   border-radius: 16px;
   background-color: #f9f9f9;
@@ -93,12 +97,24 @@ const PositionCard: React.FC<PositionCardProps> = ({
   positionId,
   tokens,
   progress,
+  position,
 }) => {
+
+  const { config } = usePrepareContractWrite({
+    address: getstrategyAddress("limitOrder", 80001),
+    abi: LimitOrderABI,
+    functionName: "cancelLimitOrder",
+    args: [position.positionId],
+  });
+  const { write: withdraw } = useContractWrite(config);
+  //revert
+  
+  console.log(position)
   return (
     <StyledBox>
       <span>
       <div>
-        <SMTT>Position: No.1</SMTT>
+        <SMTT>Position: No.{positionId}</SMTT>
         <Flex>
           <span style={{ marginTop: "-1px" }}>{tokens[0].icon}</span>
           <span style={{ marginLeft: "-5px", marginRight: "10px" }}>
@@ -112,8 +128,8 @@ const PositionCard: React.FC<PositionCardProps> = ({
           {tokens[1].ticker}
         </span>
         <Porgress>{progress===100?"CLOSED":progress+"%"}</Porgress>
-      </div>
-      <StyledButton outline={progress >= 100} primary={progress < 100}>
+        </div>
+      <StyledButton outline={progress >= 100} primary={progress < 100} onClick={()=> withdraw?.()}>
         {progress >= 100 ? (
           <>
             {tokens[1].balance} {tokens[1].ticker} has already been sent to your
@@ -133,3 +149,4 @@ const PositionCard: React.FC<PositionCardProps> = ({
   );
 };
 export default PositionCard;
+
