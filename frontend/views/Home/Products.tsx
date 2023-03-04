@@ -12,6 +12,25 @@ export interface ProductProps {
   description: string;
 }
 
+const ZIndex = styled.div`
+  position: relative;
+  z-index: 9;
+`;
+const Title = styled.div<{ hovered?: boolean }>`
+  margin: auto;
+  font-size: ${({ hovered }) => (hovered ? "35px" : "15px")};
+  font-weight: ${({ hovered }) => (hovered ? "500" : "400")};
+  padding: ${({ hovered }) => (hovered ? "10px" : "0px")};
+  color: white;
+  ${({ hovered }) => hovered ? `font-family: "Chakra Petch", sans-serif;`: ""}
+`;
+
+const Description = styled.div<{ hovered?: boolean }>`
+  padding: 5px 10px;
+  font-size: 18px;
+  color: white; 
+`;
+
 const CustomizedBox = styled(Box)<{ size: number }>`
   width: ${({ size }) => (size === 0 ? 500 : 200 - size * 50)}px;
   height: ${({ size }) => (size === 0 ? 350 : 150 - size * 25)}px;
@@ -23,24 +42,13 @@ const CustomizedBox = styled(Box)<{ size: number }>`
     background: white;
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.3);
   }
-`;
 
-const ZIndex = styled.div`
-  position: relative;
-  z-index: 9;
-`;
-const Title = styled.div<{ hovered?: boolean }>`
-  margin: auto;
-  font-size: ${({ hovered }) => (hovered ? "35px" : "15px")};
-  font-weight: ${({ hovered }) => (hovered ? "500" : "400")};
-  padding: ${({ hovered }) => (hovered ? "10px" : "0px")};
-  color: white;
-  ${({ hovered }) => hovered ? `font-family: "Chakra Petch", sans-serif; color: black;` : ""};
-`;
-const Description = styled.div<{ hovered?: boolean }>`
-  padding: 5px 10px;
-  font-size: 18px;
-  color: ${({ hovered }) => (hovered ? "black" : "white")}; 
+  :hover ${Title} {
+    color: black;
+  }
+  :hover ${Description} {
+    color: black;
+  }
 `;
 
 const LearnMore = styled.div`
@@ -77,9 +85,9 @@ const Products: React.FC<ProductsProps> = ({ products }) => {
             >
               {product.networkIcon}
               <ZIndex>
-                <Title hovered={hovered === index} style={{color:hovered === index?"black":'white'}}>{product.title}</Title>
+                <Title hovered={hovered === index}>{product.title}</Title>
                 {hovered === index && (
-                  <Description hovered={hovered === index} style={{color:hovered === index?"black":'white'}}>
+                  <Description hovered={hovered === index}>
                     {product.description}
                   </Description>
                 )}

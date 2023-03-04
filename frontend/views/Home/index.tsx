@@ -29,7 +29,7 @@ export const Home = () => {
 
   return (
     <Container>
-      {/* <Wrapper1
+      <Wrapper1
         ref={page1}
         onClick={() =>
           page2 &&
@@ -42,7 +42,7 @@ export const Home = () => {
         }
       >
         <Title />
-      </Wrapper1> */}
+      </Wrapper1>
       <Wrapper2
         ref={page2}
         onClick={() =>
