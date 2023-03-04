@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Wallet from "@/components/Wallet/wallets";
 import { productsList } from "./productsLisr";
 import Products from "./Products";
-import { Title } from "@/packages/uikit/src";
+import Title from "./Title";
 import { useRef } from "react";
 
 const Container = styled.div``;
