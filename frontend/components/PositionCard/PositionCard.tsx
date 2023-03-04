@@ -6,6 +6,7 @@ import { Button, SMBtn } from "@aperture/uikit";
 import { useContractWrite, useNetwork, usePrepareContractWrite } from "wagmi";
 import { getstrategyAddress, getTokenAddress } from "@/config/contracts";
 import LimitOrderABI from "@/config/ABI/LimitOrder.json";
+import {utils} from "ethers";
 
 const StyledBox = styled.div`
   border-radius: 16px;
@@ -109,36 +110,35 @@ const PositionCard: React.FC<PositionCardProps> = ({
   const { write: withdraw } = useContractWrite(config);
   //revert
   
-  console.log(position)
+  console.log(position, "hi", position.isZeroForOne)
   return (
     <StyledBox>
       <span>
       <div>
         <SMTT>Position: No.{positionId}</SMTT>
         <Flex>
-          <span style={{ marginTop: "-1px" }}>{tokens[0].icon}</span>
+          <span style={{ marginTop: "-1px" }}>{tokens[position.isZeroForOne?0:1].icon}</span>
           <span style={{ marginLeft: "-5px", marginRight: "10px" }}>
-            {tokens[1].icon}
+            {tokens[position.isZeroForOne?1:0].icon}
           </span>
-          {tokens[0].ticker}/{tokens[1].ticker}
-          <StyledSMBTN>0.3%</StyledSMBTN>
+          {tokens[position.isZeroForOne?0:1].ticker}/{tokens[position.isZeroForOne?1:0].ticker}
+          <StyledSMBTN>{position.fee /10000}%</StyledSMBTN>
         </Flex>
         <span style={{ fontSize: "14px", opacity: "0.7" }}>
-          <Number>1000</Number> {tokens[0].ticker} {"<->"} <Number>200</Number>{" "}
-          {tokens[1].ticker}
+          <Number>1000</Number> {tokens[position.isZeroForOne?0:1].ticker} {"<->"} <Number>{utils.formatEther("0x00")}</Number>{" "}
+          {tokens[position.isZeroForOne?1:0].ticker}
         </span>
-        <Porgress>{progress===100?"CLOSED":progress+"%"}</Porgress>
+        <Porgress>{position.completed?"CLOSED":progress+"%"}</Porgress>
         </div>
-      <StyledButton outline={progress >= 100} primary={progress < 100} onClick={()=> withdraw?.()}>
-        {progress >= 100 ? (
+      <StyledButton outline={position.completed} primary={!position.completed} onClick={()=> !position.completed && withdraw?.()}>
+        {position.completed ? (
           <>
-            {tokens[1].balance} {tokens[1].ticker} has already been sent to your
-            wallet ;)
+            Tokens already sent to your wallet ;)
           </>
         ) : (
           <>
-            Withdraw {((100 - progress) / 100) * tokens[0].balance}{" "}
-            {tokens[0].ticker} and {(progress / 100) * tokens[1].balance}{" "}
+            Withdraw {((100 - progress) / 100) * tokens[position.isZeroForOne?0:1].balance}{" "}
+            {tokens[0].ticker} and {(progress / 100) * tokens[position.isZeroForOne?1:0].balance}{" "}
             {tokens[1].ticker}
           </>
         )}

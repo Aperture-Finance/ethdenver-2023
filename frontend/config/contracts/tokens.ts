@@ -1,5 +1,5 @@
 export const tokensContract = {
-  usdc: {
+  usdc: { //token1
     1: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
     5: "0xD87Ba7A50B2E7E660f678A895E4B72E7CB4CCd9C",
     80001:"0xD3c193236659cD8350FAD39aB4fF97536Ed72998",
@@ -8,7 +8,7 @@ export const tokensContract = {
   //   1: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
   //   5: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
   // },
-  weth:{
+  weth:{ //token0
     1:"0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa",
     5:"0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa",
     80001:"0x3428F678C364341785C0CafEd75B608393B6711D",

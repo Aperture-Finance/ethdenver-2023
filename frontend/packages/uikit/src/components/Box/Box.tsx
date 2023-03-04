@@ -3,8 +3,8 @@ import styled from "styled-components";
 
 const StyledBox = styled.div<{ error?: boolean }>`
   border-radius: 16px;
-  background-color: ${({ error }) => (error ? "#e1e1e1" : "#f9f9f9")};
-  border: 1px solid #e1e1e1;
+  background-color: ${({ error, theme }) => (error ? "#e1e1e1" : theme.colors.bg3)};
+  border: 1px solid ${({ error, theme }) => (error ? "#e1e1e1" : theme.colors.bg2)};
   width: calc(100% - 20px);
   padding: 10px;
   align-items: center;

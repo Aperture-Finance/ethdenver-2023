@@ -18,7 +18,7 @@ const Wrapper2 = styled.div`
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background-color: #E1E6EF;
+  background-color: ${({ theme }) => theme.colors.bg1};
   position: relative;
 `;
 
@@ -29,7 +29,7 @@ export const Home = () => {
 
   return (
     <Container>
-      <Wrapper1
+      {/* <Wrapper1
         ref={page1}
         onClick={() =>
           page2 &&
@@ -42,7 +42,7 @@ export const Home = () => {
         }
       >
         <Title />
-      </Wrapper1>
+      </Wrapper1> */}
       <Wrapper2
         ref={page2}
         onClick={() =>
