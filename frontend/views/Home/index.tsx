@@ -19,6 +19,7 @@ const Wrapper2 = styled.div`
   height: 100vh;
   overflow: hidden;
   background-color: #E1E6EF;
+  position: relative;
 `;
 
 export const Home = () => {

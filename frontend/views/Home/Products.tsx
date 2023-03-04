@@ -47,11 +47,14 @@ const Title = styled.div<{ hovered?: boolean }>`
 const Description = styled.div<{ hovered?: boolean }>`
   padding: 5px 10px;
 `;
+
 const Products: React.FC<ProductsProps> = ({ products }) => {
   const [hovered, setHover] = useState(Math.floor(products.length / 2));
 
   //size 0, 1, 2,3
   return (
+  <>
+    <div style={{position:'absolute', top:'30%', width:'100%', textAlign:'center', fontSize:'32px', fontFamily:'"Chakra Petch", sans-serif'}}>View Our Projects</div>
       <div
         style={{
           display: "flex",
@@ -61,6 +64,7 @@ const Products: React.FC<ProductsProps> = ({ products }) => {
           height: "100vh",
         }}
       >
+        
         {products.map((product, index) => (
           <div key={"outerbox" + index} onMouseEnter={() => setHover(index)}>
             <CustomizedBox
@@ -81,7 +85,8 @@ const Products: React.FC<ProductsProps> = ({ products }) => {
             </CustomizedBox>
           </div>
         ))}
-      </div>
+      </div> 
+      </>
   );
 };
 export default Products;

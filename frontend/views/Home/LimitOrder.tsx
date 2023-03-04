@@ -10,7 +10,8 @@ const StyledBox = styled(Box)`
   max-width: 1000px;
   width: 100%;
   height: 521px;
-  margin: auto auto;
+  margin: auto;
+  margin-top: 10%;
 `;
 const Wrapper = styled.div`
   display: grid;
