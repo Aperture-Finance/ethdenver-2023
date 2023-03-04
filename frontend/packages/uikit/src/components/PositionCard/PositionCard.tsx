@@ -18,6 +18,8 @@ const StyledBox = styled.div`
     transition: all 0.3s ease-in-out;
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.1);
   }
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
 `;
 const Grid = styled.div``;
 const Flex = styled.div`
@@ -27,20 +29,16 @@ const Flex = styled.div`
   align-items: center;
 `;
 const StyledButton = styled(Button)<{ outline: boolean }>`
-  width: calc(100% - ${({ outline }) => (outline ? "0px" : "32px")});
+  width: calc(100% - ${({ outline }) => (outline ? "0px" : "48px")});
   ${({ outline }) => outline && "cursor: default;"}
 `;
 const Porgress = styled.div`
-  font-size: 40px;
-  position: absolute;
-  top: 8px;
-  right: 16px;
+  font-size: 50px;
   background: -webkit-linear-gradient(45deg, #ffaf29 0%, #c000a1 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-family: "Chakra Petch", sans-serif;
   font-weight: 500;
-  float: right;
 `;
 const StyledSMBTN = styled(SMBtn)`
   height: fit-content;
@@ -88,7 +86,7 @@ const StyledArrow = styled(Arrow)`
 const SMTT = styled.div`
   font-size: 14px;
   color: rgba(0, 0, 0, 0.6);
-  margin-bottom: 16px;
+  margin-bottom:8px;
 `;
 
 const PositionCard: React.FC<PositionCardProps> = ({
@@ -98,9 +96,9 @@ const PositionCard: React.FC<PositionCardProps> = ({
 }) => {
   return (
     <StyledBox>
-      <Grid>
+      <span>
+      <div>
         <SMTT>Position: No.1</SMTT>
-        <Porgress>{progress===100?"CLOSED":progress+"%"}</Porgress>
         <Flex>
           <span style={{ marginTop: "-1px" }}>{tokens[0].icon}</span>
           <span style={{ marginLeft: "-5px", marginRight: "10px" }}>
@@ -113,8 +111,8 @@ const PositionCard: React.FC<PositionCardProps> = ({
           <Number>1000</Number> {tokens[0].ticker} {"<->"} <Number>200</Number>{" "}
           {tokens[1].ticker}
         </span>
-      </Grid>
-      <br />
+        <Porgress>{progress===100?"CLOSED":progress+"%"}</Porgress>
+      </div>
       <StyledButton outline={progress >= 100} primary={progress < 100}>
         {progress >= 100 ? (
           <>
@@ -129,6 +127,8 @@ const PositionCard: React.FC<PositionCardProps> = ({
           </>
         )}
       </StyledButton>
+      </span>
+      <div>nft</div>
     </StyledBox>
   );
 };
