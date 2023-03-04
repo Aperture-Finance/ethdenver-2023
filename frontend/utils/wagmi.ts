@@ -17,6 +17,7 @@ import { OKXWalletConnector } from "@/utils/okx";
 // import Web3AuthConnector from "./web3Auth";
 
 import memoize from "lodash/memoize";
+import { MagicAuthConnector, MagicConnectConnector } from '@everipedia/wagmi-magic-connector';
 
 export const { chains, provider, webSocketProvider } = configureChains(
   [polygonMumbai], // TODO: determine the best testnet chain for eth, Gao sugguests: Sepolia
@@ -44,7 +45,24 @@ export const client = createClient({
       },
     }),
     new OKXWalletConnector({ chains }),
+    new MagicAuthConnector({
+      options: {
+        apiKey: "pk_live_0A5DA6E112CAD73C",
+        enableSMSLogin: true,
+        oauthOptions : {
+          providers: ['facebook', 'google', 'twitter'],
+          callbackUrl: 'https://your-callback-url.com', //optional
+        }
+      },
+    }),
+    new MagicConnectConnector({
+      options: {
+        apiKey: "pk_live_10D2C3F77D03BB86",
+        //...Other options
+      },
+    }),
     // Web3AuthConnector(chains),
+    
   ],
   provider,
   webSocketProvider,

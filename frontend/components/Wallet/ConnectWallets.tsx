@@ -10,14 +10,15 @@ import {
   CoinbaseIcon,
   WalletConnectIcon,
   OkxIcon,
+  MagicIcon
 } from "@aperture/assetkit";
 import styled from "styled-components";
 import { Box, Title } from "@/packages/uikit/src";
 
 const Wrapper = styled.div`
-  width: 210px;
+  width: 340px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 20px;
 `;
 const WalletBtn = styled(Box)`
@@ -54,12 +55,14 @@ const ConnectWallets = (props:any) => {
   const { disconnect } = useDisconnect();
   const { data } = useBalance({ address });
 
-  const wallets = ["Metamask", "Coinbase", "Wallet Connect", "OKX"];
+  const wallets = ["Metamask", "Coinbase", "Wallet Connect", "OKX", "Magic Auth", "Magic Wallet"];
   const walletIcons = [
     <MetamaskIcon style={iconStyle} key="metamask"/>,
     <CoinbaseIcon style={iconStyle} key="coinbase"/>,
     <WalletConnectIcon style={iconStyle} key="walletconnect"/>,
     <OkxIcon style={iconStyle} key="okx"/>,
+    <MagicIcon style={iconStyle} key="magic-auth"/>,
+    <MagicIcon style={iconStyle} key="magic"/>,
   ];
   return (
     <div {...props}>
