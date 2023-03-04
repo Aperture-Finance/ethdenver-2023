@@ -20,8 +20,8 @@ const Container = styled.div`
 `;
 
 const CustomizedBox = styled(Box)<{ size: number }>`
-  width: ${({ size }) => (size === 0 ? 175 : 125 - size * 25)}px;
-  height: ${({ size }) => (size === 0 ? 350 : 250 - size * 50)}px;
+  width: ${({ size }) => (size === 0 ? 300 : 200 - size * 50)}px;
+  height: ${({ size }) => (size === 0 ? 200 : 150 - size * 25)}px;
   cursor: default;
   transition: 0.3s;
   position: relative;

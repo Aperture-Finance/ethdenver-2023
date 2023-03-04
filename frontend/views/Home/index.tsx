@@ -5,6 +5,7 @@ import { productsList } from "./productsLisr";
 import Products from "./Products";
 import Title from "./Title";
 import { useRef } from "react";
+import { TokensBalance } from "../TokenBalance";
 
 const Container = styled.div``;
 
@@ -56,6 +57,7 @@ export const Home = () => {
         <Products products={productsList} />
       </Wrapper2>
       <Wrapper2 ref={page3}>
+        {/* <Wallet/> */}
         <LimitOrder />
       </Wrapper2>
     </Container>

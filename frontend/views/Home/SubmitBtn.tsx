@@ -8,7 +8,7 @@ import { useFetchUserToken } from "@/hooks/useFetchUserToken";
 import { ERC20TokenMap } from "@/config/token/tokenMap";
 import { utils } from "ethers";
 import { useState } from "react";
-import { Token } from "@/packages/uikit/src";
+import { SMBtn, Token } from "@/packages/uikit/src";
 
 export interface SubmitBtnProps {
   tokenA: Token;
@@ -82,8 +82,7 @@ const SubmitBtn: React.FC<SubmitBtnProps> = ({
   console.log("deposit:", data, isLoading, isSuccess);
   return (
     <>
-      <button onClick={() => revert?.()}>revert</button>
-      <button onClick={() => mutate()}>mutate</button>
+      {/* <button onClick={() => revert?.()}>revert</button> */}
       {Number(
         utils.formatUnits(
           tokenData?.allowanceBN,
@@ -116,6 +115,7 @@ const SubmitBtn: React.FC<SubmitBtnProps> = ({
             : "Deposit"}
         </SubmitButton>
       )}
+      <SMBtn onClick={() => mutate()} style={{padding:'0', marginLeft:'10px'}}>mutate</SMBtn>
     </>
   );
 };
