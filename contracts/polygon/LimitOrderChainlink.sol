@@ -6,17 +6,17 @@ import {AutomationRegistryInterface, State, Config} from "./interfaces/Automatio
 import {KeeperRegistrarInterface} from "./interfaces/KeeperRegistrarInterface.sol";
 import {LinkTokenInterface} from "@chainlink/contracts/src/v0.7/interfaces/LinkTokenInterface.sol";
 import {KeeperCompatibleInterface} from "@chainlink/contracts/src/v0.7/interfaces/KeeperCompatibleInterface.sol";
-import {FullMath} from "@uniswap/v3-core/contracts/libraries/FullMath.sol";
 
 import "./UniV3Automan.sol";
 
 contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
     using FullMath for uint256;
 
-    LinkTokenInterface public immutable i_link;
-    address public immutable registrar;
     AutomationRegistryInterface public immutable i_registry;
-    bytes4 registerSig = KeeperRegistrarInterface.register.selector;
+    address internal immutable registrar;
+    bytes4 internal registerSig = KeeperRegistrarInterface.register.selector;
+    LinkTokenInterface public immutable i_link;
+    uint96 internal immutable minLINKJuels;
 
     constructor(
         AutomationRegistryInterface _registry,
@@ -24,9 +24,13 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
     ) UniV3Automan(nonfungiblePositionManager) {
         i_registry = _registry;
         (, Config memory config, ) = _registry.getState();
-        address _registrar = config.registrar;
-        registrar = _registrar;
-        i_link = KeeperRegistrarInterface(_registrar).LINK();
+        KeeperRegistrarInterface _registrar = KeeperRegistrarInterface(
+            config.registrar
+        );
+        registrar = address(_registrar);
+        i_link = _registrar.LINK();
+        (, , , , uint256 _minLINKJuels) = _registrar.getRegistrationConfig();
+        minLINKJuels = uint96(_minLINKJuels);
     }
 
     /// @param name	Name of Upkeep
@@ -132,65 +136,90 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
     /// @param inputAmount Amount to sell
     /// @param outputAmount Amount to receive if sold at the limit price
     /// @param fee Uni v3 pool fee tier
+    /// @return tokenId Uni v3 Position Manger ID
     function createLimitOrder(
         address inputToken,
         address outputToken,
         uint256 inputAmount,
         uint256 outputAmount,
         uint24 fee
-    ) external payable {
+    ) external payable returns (uint256 tokenId) {
         bool isZeroForOne = inputToken < outputToken;
         (address token0, address token1) = isZeroForOne
             ? (inputToken, outputToken)
             : (outputToken, inputToken);
-        address pool = Utils.computePoolAddress(factory, token0, token1, fee);
-        (
-            int24 tickLower,
-            int24 tickUpper,
-            uint256 amount0Desired,
-            uint256 amount1Desired
-        ) = calculateTickAmount(
-                IUniswapV3Pool(pool),
-                inputAmount,
-                outputAmount,
-                isZeroForOne
+        uint128 liquidity;
+        {
+            address pool = Utils.computePoolAddress(
+                factory,
+                token0,
+                token1,
+                fee
             );
+            (
+                int24 tickLower,
+                int24 tickUpper,
+                uint256 amount0Desired,
+                uint256 amount1Desired
+            ) = calculateTickAmount(
+                    IUniswapV3Pool(pool),
+                    inputAmount,
+                    outputAmount,
+                    isZeroForOne
+                );
+            (tokenId, liquidity, , ) = mint(
+                token0,
+                token1,
+                fee,
+                tickLower,
+                tickUpper,
+                amount0Desired,
+                amount1Desired
+            );
+        }
 
-        (uint256 tokenId, , , ) = mint(
-            token0,
-            token1,
-            fee,
-            tickLower,
-            tickUpper,
-            amount0Desired,
-            amount1Desired
-        );
-
-        uint256 upkeepID = registerAndPredictID(
-            "LimitOrder",
-            new bytes(0),
-            address(this),
-            uint32(2000000),
-            address(this),
-            abi.encode(tokenId),
-            uint96(5000000000000000000),
-            uint8(0)
-        );
+        uint256 upkeepID;
+        {
+            uint96 _minLINKJuels = minLINKJuels;
+            require(
+                i_link.balanceOf(address(this)) >= _minLINKJuels,
+                "Insufficient Link"
+            );
+            upkeepID = registerAndPredictID(
+                "UniV3LimitOrder",
+                new bytes(0),
+                address(this),
+                uint32(2000000),
+                address(this),
+                abi.encode(tokenId),
+                _minLINKJuels,
+                uint8(0)
+            );
+        }
         orderBook.push(tokenId);
         orderInfo[tokenId] = LimitOrder({
             owner: msg.sender,
             isZeroForOne: isZeroForOne,
             completed: false,
+            liquidity: liquidity,
             upkeepID: upkeepID
         });
     }
 
-    function cancelLimitOrder(uint256 positionId) external {
-        LimitOrder storage order = orderInfo[positionId];
-        require(msg.sender == order.owner, "Only owner can cancel");
-        i_registry.cancelUpkeep(order.upkeepID);
-        (uint128 liquidity, , ) = getLiquidityAmounts(positionId);
-        closePosition(positionId, liquidity);
+    /// @notice Cancel a Uni v3 LP and limit order
+    /// @param tokenId Uni v3 Position Manger ID
+    function cancelLimitOrder(uint256 tokenId) external {
+        LimitOrder storage order = orderInfo[tokenId];
+        require(msg.sender == order.owner, "Only position owner");
+        uint256 upkeepID = order.upkeepID;
+        i_registry.cancelUpkeep(upkeepID);
+        (uint128 liquidity, , ) = getLiquidityAmounts(tokenId);
+        closePosition(tokenId, liquidity);
+    }
+
+    /// @dev Can only withdraw 50 blocks after cancellation
+    function withdrawLink(uint256 tokenId) external {
+        i_registry.withdrawFunds(orderInfo[tokenId].upkeepID, address(this));
     }
 
     function closePosition(uint256 positionId, uint128 liquidity) internal {
@@ -270,7 +299,7 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
         (bool upkeepNeeded, uint128 liquidity) = checkUpkeepInternal(
             positionId
         );
-        require(upkeepNeeded, "condition not met");
+        require(upkeepNeeded, "Condition not met");
         closePosition(positionId, liquidity);
     }
 }

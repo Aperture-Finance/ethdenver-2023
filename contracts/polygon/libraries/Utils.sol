@@ -1,9 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.7.0;
 
+import "@uniswap/v3-core/contracts/libraries/FullMath.sol";
 import "@uniswap/v3-periphery/contracts/libraries/PoolAddress.sol";
 
 library Utils {
+    using FullMath for uint256;
+
+    uint256 internal constant X96 = 2 ** 96;
+
     function matchTickSpacingDown(
         int24 tick,
         int24 tickSpacing
@@ -48,6 +53,20 @@ library Utils {
             factory,
             PoolAddress.PoolKey(token0, token1, fee)
         );
+    }
+
+    function mulSquareX96(
+        uint256 amount0,
+        uint160 sqrtPrice0X96
+    ) internal pure returns (uint256) {
+        return amount0.mulDiv(sqrtPrice0X96, X96).mulDiv(sqrtPrice0X96, X96);
+    }
+
+    function divSquareX96(
+        uint256 amount1,
+        uint160 sqrtPrice0X96
+    ) internal pure returns (uint256) {
+        return amount1.mulDiv(X96, sqrtPrice0X96).mulDiv(X96, sqrtPrice0X96);
     }
 
     /**

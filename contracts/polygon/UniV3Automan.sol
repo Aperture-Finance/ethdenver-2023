@@ -15,8 +15,8 @@ contract UniV3Automan is IERC721Receiver {
     using SafeERC20 for IERC20;
     using TickMath for int24;
 
-    INonfungiblePositionManager immutable NFPM;
-    address immutable factory;
+    INonfungiblePositionManager public immutable NFPM;
+    address internal immutable factory;
 
     struct LimitOrder {
         // User who placed the order
@@ -24,6 +24,8 @@ contract UniV3Automan is IERC721Receiver {
         // If exchanging from token0 to token1
         bool isZeroForOne;
         bool completed;
+        // Initial liquidity
+        uint128 liquidity;
         uint256 upkeepID;
     }
 
@@ -35,6 +37,14 @@ contract UniV3Automan is IERC721Receiver {
     constructor(INonfungiblePositionManager nonfungiblePositionManager) {
         NFPM = nonfungiblePositionManager;
         factory = nonfungiblePositionManager.factory();
+    }
+
+    function orderNumber() external view returns (uint256) {
+        return orderBook.length;
+    }
+
+    function orderList() external view returns (uint256[] memory) {
+        return orderBook;
     }
 
     function tokenURI(uint256 tokenId) public view returns (string memory) {
@@ -53,7 +63,7 @@ contract UniV3Automan is IERC721Receiver {
             uint128 liquidity,
             ,
 
-        ) = positions(positionId);
+        ) = _positions(positionId);
         address pool = Utils.computePoolAddress(factory, token0, token1, fee);
         (uint160 sqrtPriceX96, , , , , , ) = IUniswapV3PoolState(pool).slot0();
 
@@ -89,16 +99,23 @@ contract UniV3Automan is IERC721Receiver {
         uint256 positionId
     ) public view returns (PositionInfo memory posInfo) {
         posInfo.positionId = positionId;
+        LimitOrder storage order = orderInfo[positionId];
+        posInfo.owner = order.owner;
+        posInfo.isZeroForOne = order.isZeroForOne;
+        posInfo.completed = order.completed;
+        posInfo.upkeepID = order.upkeepID;
+        uint128 liquidity = order.liquidity;
+        posInfo.liquidity = liquidity;
         (
             posInfo.token0,
             posInfo.token1,
             posInfo.fee,
             posInfo.tickLower,
             posInfo.tickUpper,
-            posInfo.liquidity,
+            ,
             ,
 
-        ) = positions(positionId);
+        ) = _positions(positionId);
         address pool = Utils.computePoolAddress(
             factory,
             posInfo.token0,
@@ -115,28 +132,24 @@ contract UniV3Automan is IERC721Receiver {
                 sqrtPriceX96,
                 sqrtLowerPriceX96,
                 sqrtUpperPriceX96,
-                posInfo.liquidity
+                liquidity
             );
-        LimitOrder storage order = orderInfo[positionId];
-        posInfo.owner = order.owner;
-        posInfo.isZeroForOne = order.isZeroForOne;
-        posInfo.completed = order.completed;
-        posInfo.upkeepID = order.upkeepID;
         if (posInfo.isZeroForOne) {
             posInfo.desiredAmount = LiquidityAmounts.getAmount1ForLiquidity(
                 sqrtLowerPriceX96,
                 sqrtUpperPriceX96,
-                posInfo.liquidity
+                liquidity
             );
         } else {
             posInfo.desiredAmount = LiquidityAmounts.getAmount0ForLiquidity(
                 sqrtLowerPriceX96,
                 sqrtUpperPriceX96,
-                posInfo.liquidity
+                liquidity
             );
         }
     }
 
+    /// @notice All open and closed positions
     function allPositions() external view returns (PositionInfo[] memory pos) {
         uint256 length = orderBook.length;
         pos = new PositionInfo[](length);
@@ -145,10 +158,35 @@ contract UniV3Automan is IERC721Receiver {
         }
     }
 
-    function positions(
+    /// @notice Get a user's positions
+    function getPositions(
+        address user
+    ) external view returns (PositionInfo[] memory pos, string[] memory URIs) {
+        uint256 length = orderBook.length;
+        uint256 counter;
+        for (uint256 i; i < length; ++i) {
+            if (orderInfo[orderBook[i]].owner == user) {
+                counter += 1;
+            }
+        }
+        pos = new PositionInfo[](counter);
+        URIs = new string[](counter);
+        counter = 0;
+        for (uint256 i; i < length; ++i) {
+            uint256 positionId = orderBook[i];
+            if (orderInfo[positionId].owner == user) {
+                pos[counter] = getPositionInfo(positionId);
+                URIs[counter] = tokenURI(positionId);
+                counter += 1;
+            }
+        }
+    }
+
+    /// @dev Wrapper around `INonfungiblePositionManager.positions`
+    function _positions(
         uint256 tokenId
     )
-        public
+        internal
         view
         returns (
             address token0,
@@ -177,7 +215,7 @@ contract UniV3Automan is IERC721Receiver {
         ) = NFPM.positions(tokenId);
     }
 
-    /// @dev Pull tokens from caller and approve the pool to spend
+    /// @dev Pull tokens from caller and approve the v3 position manager to spend
     function transferAndApprove(
         address token0,
         address token1,
@@ -295,7 +333,7 @@ contract UniV3Automan is IERC721Receiver {
         payable
         returns (uint128 liquidity, uint256 amount0, uint256 amount1)
     {
-        (address token0, address token1, , , , , , ) = positions(tokenId);
+        (address token0, address token1, , , , , , ) = _positions(tokenId);
         transferAndApprove(token0, token1, amount0Desired, amount1Desired);
         (liquidity, amount0, amount1) = NFPM.increaseLiquidity{
             value: msg.value

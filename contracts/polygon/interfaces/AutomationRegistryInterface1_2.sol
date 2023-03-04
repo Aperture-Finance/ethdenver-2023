@@ -71,6 +71,13 @@ interface AutomationRegistryBaseInterface {
 
     function addFunds(uint256 id, uint96 amount) external;
 
+    /**
+     * @notice removes funding from a canceled upkeep
+     * @param id upkeep to withdraw funds from
+     * @param to destination address for sending remaining funds
+     */
+    function withdrawFunds(uint256 id, address to) external;
+
     function setUpkeepGasLimit(uint256 id, uint32 gasLimit) external;
 
     function getUpkeep(
