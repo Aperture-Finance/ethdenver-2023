@@ -12,7 +12,7 @@ export const ERC20TokenMap: Token = {
     name: "USD Coin",
     ticker: "USDC",
     icon: UsdcIcon,
-    decimals: 6,
+    decimals: 18,
   },
   // usdt: {
   //   name: "Tether",

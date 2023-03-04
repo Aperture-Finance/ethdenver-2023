@@ -1,5 +1,6 @@
 import { getstrategyAddress, getTokenAddress } from "@/config/contracts";
-import { useFetchUserTokens } from "@/hooks/useFetchUserToken";
+import { ERC20TokenMap } from "@/config/token/tokenMap";
+import { useFetchUserToken, useFetchUserTokens } from "@/hooks/useFetchUserToken";
 import {
   ButtonGroups,
   Dropdown,
@@ -9,9 +10,9 @@ import {
   TextInput,
   Title,
 } from "@/packages/uikit/src";
+import { utils } from "ethers";
 import { useState } from "react";
 import styled from "styled-components";
-import { useNetwork } from "wagmi";
 import { Arrow } from "./icon/down";
 import SubmitBtn, { ErrorBtn } from "./SubmitBtn";
 import { TokenList, TokenList2 } from "./tokenList";
@@ -39,21 +40,17 @@ export const Swap = () => {
   const [ratio, setRatio] = useState<string | null>(null);
   const [feeTier, setFeeTier] = useState<number>(5);
   const [amount, setAmount] = useState<string | null>(null);
-  const getButtonText = (): string => {
-    if (!(tokenA && tokenB && tokenA.ticker !== tokenB.ticker)) {
-      return "Select Token";
-    } else if (!(ratio && Number(ratio) > 0)) {
-      return "Missing Swap Ratio";
-    } else if (!(amount && Number(amount) > 0)) {
-      return "Missing Deposit Amount";
-    } else if (Number(amount) > Number(tokenA.balance)) {
-      return "Deposit Amount Exceed Balance";
-    } else if (tokenA) {
-      return "Approve";
-    } else {
-      return "Deposit";
-    }
-  };
+  const { data: wethData, error: wethError, isLoading: wethisLoading, } = useFetchUserToken(getTokenAddress('weth', 80001), getstrategyAddress("limitOrder", 80001));
+  const { data: usdcData, error: usdcError, isLoading: usdcisLoading} = useFetchUserToken(getTokenAddress('usdc', 80001), getstrategyAddress("limitOrder", 80001));
+  
+  if(!wethisLoading && !usdcisLoading && wethData && usdcData){
+    TokenList[0].balance = Number(utils.formatUnits(wethData?.balanceBN, ERC20TokenMap.weth.decimals))
+    TokenList[1].balance = Number(utils.formatUnits(usdcData?.balanceBN, ERC20TokenMap.weth.decimals))
+    TokenList2[0].balance = Number(utils.formatUnits(wethData?.balanceBN, ERC20TokenMap.weth.decimals))
+    TokenList2[1].balance = Number(utils.formatUnits(usdcData?.balanceBN, ERC20TokenMap.weth.decimals))
+  }
+ 
+  
   return (
     <Wrapper>
       <Subtitle>Deposit:</Subtitle>
@@ -85,7 +82,7 @@ export const Swap = () => {
       <Grid>
         <Subtitle>Fee Tier: </Subtitle>
         <ButtonGroups
-          onSelect={(feeTier: number) => setFeeTier(feeTier * 100)}
+          onSelect={(feeTier: number) => setFeeTier(feeTier * 10000)}
         />
       </Grid>
       <Subtitle>Deposit Amount:</Subtitle>

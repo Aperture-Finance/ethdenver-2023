@@ -1,8 +1,12 @@
 import React from "react";
 import styled from "styled-components";
 import { PositionCardProps } from "./types";
-import { Number, SubSubtitle, Subtitle } from "../Typography";
-import { Button, SMBtn } from "../Button";
+import { Number, SubSubtitle, Subtitle } from "@aperture/uikit";
+import { Button, SMBtn } from "@aperture/uikit";
+import { useContractWrite, useNetwork, usePrepareContractWrite } from "wagmi";
+import { getstrategyAddress, getTokenAddress } from "@/config/contracts";
+import LimitOrderABI from "@/config/ABI/LimitOrder.json";
+
 const StyledBox = styled.div`
   border-radius: 16px;
   background-color: #f9f9f9;
@@ -18,6 +22,8 @@ const StyledBox = styled.div`
     transition: all 0.3s ease-in-out;
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.1);
   }
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
 `;
 const Grid = styled.div``;
 const Flex = styled.div`
@@ -27,20 +33,16 @@ const Flex = styled.div`
   align-items: center;
 `;
 const StyledButton = styled(Button)<{ outline: boolean }>`
-  width: calc(100% - ${({ outline }) => (outline ? "0px" : "32px")});
+  width: calc(100% - ${({ outline }) => (outline ? "0px" : "48px")});
   ${({ outline }) => outline && "cursor: default;"}
 `;
 const Porgress = styled.div`
-  font-size: 40px;
-  position: absolute;
-  top: 8px;
-  right: 16px;
+  font-size: 50px;
   background: -webkit-linear-gradient(45deg, #ffaf29 0%, #c000a1 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-family: "Chakra Petch", sans-serif;
   font-weight: 500;
-  float: right;
 `;
 const StyledSMBTN = styled(SMBtn)`
   height: fit-content;
@@ -88,19 +90,31 @@ const StyledArrow = styled(Arrow)`
 const SMTT = styled.div`
   font-size: 14px;
   color: rgba(0, 0, 0, 0.6);
-  margin-bottom: 16px;
+  margin-bottom:8px;
 `;
 
 const PositionCard: React.FC<PositionCardProps> = ({
   positionId,
   tokens,
   progress,
+  position,
 }) => {
+
+  const { config } = usePrepareContractWrite({
+    address: getstrategyAddress("limitOrder", 80001),
+    abi: LimitOrderABI,
+    functionName: "cancelLimitOrder",
+    args: [position.positionId],
+  });
+  const { write: withdraw } = useContractWrite(config);
+  //revert
+  
+  console.log(position)
   return (
     <StyledBox>
-      <Grid>
-        <SMTT>Position: No.1</SMTT>
-        <Porgress>{progress===100?"CLOSED":progress+"%"}</Porgress>
+      <span>
+      <div>
+        <SMTT>Position: No.{positionId}</SMTT>
         <Flex>
           <span style={{ marginTop: "-1px" }}>{tokens[0].icon}</span>
           <span style={{ marginLeft: "-5px", marginRight: "10px" }}>
@@ -113,9 +127,9 @@ const PositionCard: React.FC<PositionCardProps> = ({
           <Number>1000</Number> {tokens[0].ticker} {"<->"} <Number>200</Number>{" "}
           {tokens[1].ticker}
         </span>
-      </Grid>
-      <br />
-      <StyledButton outline={progress >= 100} primary={progress < 100}>
+        <Porgress>{progress===100?"CLOSED":progress+"%"}</Porgress>
+        </div>
+      <StyledButton outline={progress >= 100} primary={progress < 100} onClick={()=> withdraw?.()}>
         {progress >= 100 ? (
           <>
             {tokens[1].balance} {tokens[1].ticker} has already been sent to your
@@ -129,7 +143,10 @@ const PositionCard: React.FC<PositionCardProps> = ({
           </>
         )}
       </StyledButton>
+      </span>
+      <div>nft</div>
     </StyledBox>
   );
 };
 export default PositionCard;
+

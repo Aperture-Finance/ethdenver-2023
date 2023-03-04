@@ -3,12 +3,13 @@ import { getstrategyAddress, getTokenAddress } from "@/config/contracts";
 import { SubmitBtn as SubmitButton } from "@/packages/uikit/src/components/InputGroup/TextInput";
 import { useContractWrite, useNetwork, usePrepareContractWrite } from "wagmi";
 import ERC20ABI from "@/config/ABI/ERC20ABI.json";
-import Dummy from "@/config/ABI/Dummy.json";
+import LimitOrder from "@/config/ABI/LimitOrder.json";
 import { useFetchUserToken } from "@/hooks/useFetchUserToken";
 import { ERC20TokenMap } from "@/config/token/tokenMap";
 import { utils } from "ethers";
 import { useState } from "react";
-import { Token } from "@/packages/uikit/src";
+import { SMBtn, Token } from "@/packages/uikit/src";
+import { useFetchUserPositions } from "@/hooks/useFetchUserPosition";
 
 export interface SubmitBtnProps {
   tokenA: Token;
@@ -63,27 +64,27 @@ const SubmitBtn: React.FC<SubmitBtnProps> = ({
   //deposit
   const { config: depsitConfig } = usePrepareContractWrite({
     address: getstrategyAddress(contractType, chain!.id),
-    abi: Dummy,
-    functionName: "openPositionForLimitOrder", // todo
+    abi: LimitOrder,
+    functionName: "createLimitOrder", // todo
     args: [
       getTokenAddress(tokenA.ticker.toLocaleLowerCase(), chain!.id),
       getTokenAddress(tokenB.ticker.toLocaleLowerCase(), chain!.id),
+      utils.parseUnits(String(amount)),
+      utils.parseUnits(String(amount*ratio)),
       feeTier,
-      amount,
-      ratio,
     ], //todo
   });
+
+  const {mutate: positionMutate} = useFetchUserPositions(getstrategyAddress(contractType, chain!.id))
   const {
     write: deposit,
     data,
     isLoading,
     isSuccess,
   } = useContractWrite(depsitConfig);
-  console.log("deposit:", data, isLoading, isSuccess);
   return (
     <>
-      <button onClick={() => revert?.()}>revert</button>
-      <button onClick={() => mutate()}>mutate</button>
+      {/* <button onClick={() => revert?.()}>revert</button> */}
       {Number(
         utils.formatUnits(
           tokenData?.allowanceBN,
@@ -116,6 +117,7 @@ const SubmitBtn: React.FC<SubmitBtnProps> = ({
             : "Deposit"}
         </SubmitButton>
       )}
+      <SMBtn onClick={() => {mutate(); positionMutate();}} style={{padding:'0', marginLeft:'10px'}}>mutate</SMBtn>
     </>
   );
 };

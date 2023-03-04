@@ -20,8 +20,8 @@ const Container = styled.div`
 `;
 
 const CustomizedBox = styled(Box)<{ size: number }>`
-  width: ${({ size }) => (size === 0 ? 175 : 125 - size * 25)}px;
-  height: ${({ size }) => (size === 0 ? 350 : 250 - size * 50)}px;
+  width: ${({ size }) => (size === 0 ? 300 : 200 - size * 50)}px;
+  height: ${({ size }) => (size === 0 ? 200 : 150 - size * 25)}px;
   cursor: default;
   transition: 0.3s;
   position: relative;
@@ -38,7 +38,7 @@ const ZIndex = styled.div`
 `;
 const Title = styled.div<{ hovered?: boolean }>`
   margin: auto;
-  font-size: ${({ hovered }) => (hovered ? "22px" : "12px")};
+  font-size: ${({ hovered }) => (hovered ? "22px" : "15px")};
   font-weight: ${({ hovered }) => (hovered ? "500" : "400")};
   padding: ${({ hovered }) => (hovered ? "10px" : "0px")};
   ${({ hovered }) =>
@@ -47,11 +47,14 @@ const Title = styled.div<{ hovered?: boolean }>`
 const Description = styled.div<{ hovered?: boolean }>`
   padding: 5px 10px;
 `;
+
 const Products: React.FC<ProductsProps> = ({ products }) => {
   const [hovered, setHover] = useState(Math.floor(products.length / 2));
 
   //size 0, 1, 2,3
   return (
+  <>
+    <div style={{position:'absolute', top:'30%', width:'100%', textAlign:'center', fontSize:'32px', fontFamily:'"Chakra Petch", sans-serif'}}>View Our Projects</div>
       <div
         style={{
           display: "flex",
@@ -61,6 +64,7 @@ const Products: React.FC<ProductsProps> = ({ products }) => {
           height: "100vh",
         }}
       >
+        
         {products.map((product, index) => (
           <div key={"outerbox" + index} onMouseEnter={() => setHover(index)}>
             <CustomizedBox
@@ -81,7 +85,8 @@ const Products: React.FC<ProductsProps> = ({ products }) => {
             </CustomizedBox>
           </div>
         ))}
-      </div>
+      </div> 
+      </>
   );
 };
 export default Products;
