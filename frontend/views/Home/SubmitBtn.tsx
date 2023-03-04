@@ -87,7 +87,7 @@ const SubmitBtn: React.FC<SubmitBtnProps> = ({
       {/* <button onClick={() => revert?.()}>revert</button> */}
       {Number(
         utils.formatUnits(
-          tokenData?.allowanceBN,
+          tokenData?.allowanceBN??"0x00",
           ERC20TokenMap[ticker].decimals
         )
       ) <= 0 ? (

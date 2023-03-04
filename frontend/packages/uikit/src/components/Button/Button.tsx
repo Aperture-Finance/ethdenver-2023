@@ -52,7 +52,7 @@ const Btn = styled.div<{
     ${({ outline, theme }) =>
       outline ? "color: " + theme.colors.primary + ";" : ""}
     transition: 0.2s ease-in-out;
-    ${({ primary }) => `box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);`}
+    ${({ primary }) => primary?`box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);`:""}
   }
 `;
 

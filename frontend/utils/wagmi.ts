@@ -14,7 +14,7 @@ import { CoinbaseWalletConnector } from "@wagmi/core/connectors/coinbaseWallet";
 import { MetaMaskConnector } from "@wagmi/core/connectors/metaMask";
 import { WalletConnectConnector } from "@wagmi/core/connectors/walletConnect";
 import { OKXWalletConnector } from "@/utils/okx";
-// import Web3AuthConnector from "./web3Auth";
+import Web3AuthConnector from "./Web3AuthConnectorInstance";
 
 import memoize from "lodash/memoize";
 import { MagicAuthConnector, MagicConnectConnector } from '@everipedia/wagmi-magic-connector';
@@ -61,8 +61,6 @@ export const client = createClient({
         //...Other options
       },
     }),
-    // Web3AuthConnector(chains),
-    
   ],
   provider,
   webSocketProvider,

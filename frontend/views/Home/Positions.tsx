@@ -18,6 +18,7 @@ const Wrapper = styled.div`
   padding: 0px 14px 16px 18px;
   width: calc(100% - 32px);
   height: 450px;
+  overflow-x: hidden;
   overflow-y: scroll;
 `;
 const StyledEthIcon = styled(EthIcon)`
@@ -34,7 +35,7 @@ const StyledUsdcIcon = styled(UsdcIcon)`
 
 export const Positions = () => {
   const {data, error, isLoading } = useFetchUserPositions(getstrategyAddress("limitOrder", 80001))
-  if (!isLoading) {console.log("data position:",data)}
+  // if (!isLoading) {console.log("data position:",data)}
 
   const TokenList: [Token, Token] = [
     {
@@ -54,13 +55,13 @@ export const Positions = () => {
   return (
     <Wrapper>
       <Subtitle>Positions:</Subtitle>
-      {!error&& !isLoading &&(data.map((position:any, index:number) => (
+      {!error&& !isLoading && data.pos &&(data.pos.map((position:any, index:number) => (
         <PositionCard
         key={"position" + index}
         positionId={index+1}
         tokens={TokenList}
-        progress={10}
         position={position}
+        nft={data.URIs[index]}
       />
       )))}
       

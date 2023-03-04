@@ -7,6 +7,7 @@ import { useContractWrite, useNetwork, usePrepareContractWrite } from "wagmi";
 import { getstrategyAddress, getTokenAddress } from "@/config/contracts";
 import LimitOrderABI from "@/config/ABI/LimitOrder.json";
 import {utils} from "ethers";
+import { numberParse } from "@/utils/numberFormat";
 
 const StyledBox = styled.div`
   border-radius: 16px;
@@ -36,7 +37,7 @@ const Flex = styled.div`
   align-items: center;
 `;
 const StyledButton = styled(Button)<{ outline: boolean }>`
-  width: calc(100% - ${({ outline }) => (outline ? "0px" : "48px")});
+  width: calc(100% - ${({ outline }) => (outline ? "20px" : "48px")});
   ${({ outline }) => outline && "cursor: default;"}
 `;
 const Porgress = styled.div`
@@ -96,13 +97,16 @@ const SMTT = styled.div`
   margin-bottom:8px;
 `;
 
+const StyledImg = styled.img`
+width: 100%;
+`
+
 const PositionCard: React.FC<PositionCardProps> = ({
   positionId,
   tokens,
-  progress,
   position,
+  nft,
 }) => {
-
   const { config } = usePrepareContractWrite({
     address: getstrategyAddress("limitOrder", 80001),
     abi: LimitOrderABI,
@@ -110,14 +114,18 @@ const PositionCard: React.FC<PositionCardProps> = ({
     args: [position.positionId],
   });
   const { write: withdraw } = useContractWrite(config);
-  //revert
+  const progress = parseFloat(utils.formatEther(position[position.isZeroForOne?'amount1':'amount0'])) / parseFloat(utils.formatEther(position.desiredAmount))
+  const amount0 = utils.formatEther(position[position.isZeroForOne?'amount0':'amount1'])
+  const amount1 = utils.formatEther(position.desiredAmount)
+
+  const uri = window.atob(nft.replace('data:application/json;base64,', ''));
+  const safeURL = new URL(JSON.parse(uri).image);
   
-  console.log(position, "hi", position.isZeroForOne)
   return (
     <StyledBox>
       <span>
       <div>
-        <SMTT>Position: No.{positionId}</SMTT>
+        <SMTT>Position: No.{positionId} { }</SMTT>
         <Flex>
           <span style={{ marginTop: "-1px" }}>{tokens[position.isZeroForOne?0:1].icon}</span>
           <span style={{ marginLeft: "-5px", marginRight: "10px" }}>
@@ -127,10 +135,13 @@ const PositionCard: React.FC<PositionCardProps> = ({
           <StyledSMBTN>{position.fee /10000}%</StyledSMBTN>
         </Flex>
         <span style={{ fontSize: "14px", opacity: "0.7" }}>
-          <Number>1000</Number> {tokens[position.isZeroForOne?0:1].ticker} {"<->"} <Number>{utils.formatEther("0x00")}</Number>{" "}
+          <Number>{numberParse(amount0)}</Number> 
+          {tokens[position.isZeroForOne?0:1].ticker} {"<->"} 
+          <Number>{numberParse(amount1)}</Number>
+          {" "}
           {tokens[position.isZeroForOne?1:0].ticker}
         </span>
-        <Porgress>{position.completed?"CLOSED":progress+"%"}</Porgress>
+        <Porgress>{position.completed?"CLOSED":progress.toFixed(2)+"%"}</Porgress>
         </div>
       <StyledButton outline={position.completed} primary={!position.completed} onClick={()=> !position.completed && withdraw?.()}>
         {position.completed ? (
@@ -139,14 +150,16 @@ const PositionCard: React.FC<PositionCardProps> = ({
           </>
         ) : (
           <>
-            Withdraw {((100 - progress) / 100) * tokens[position.isZeroForOne?0:1].balance}{" "}
-            {tokens[0].ticker} and {(progress / 100) * tokens[position.isZeroForOne?1:0].balance}{" "}
+            Withdraw {(1 - parseFloat(progress)) * parseFloat(amount0)}{" "}
+            {tokens[0].ticker} and {parseFloat(progress) * parseFloat(amount1)}{" "}
             {tokens[1].ticker}
           </>
         )}
       </StyledButton>
       </span>
-      <div>nft</div>
+      <div>
+        <StyledImg src={safeURL.href}/>
+      </div>
     </StyledBox>
   );
 };

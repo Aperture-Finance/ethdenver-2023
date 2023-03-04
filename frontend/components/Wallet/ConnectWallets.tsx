@@ -73,7 +73,7 @@ const ConnectWallets = (props:any) => {
         {connectors.map((connector, index) => (
           <WalletBtn
             // disabled={!connector.ready}
-            key={connector.id} //@ts-ignore
+            key={connector.id + index} //@ts-ignore
             onClick={() => connect({ connector })}
           >
             {walletIcons[index]}

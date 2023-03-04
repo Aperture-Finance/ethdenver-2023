@@ -14,7 +14,6 @@ export function useFetchUserPositions(
 ) {
   const { isConnected, address } = useAccount();
   const { chain } = useNetwork();
-
   return useSWR(`useFetchUserPositions`, async () => {
     if (isConnected && chain && chain.id ) {
       const provider = createMulticallProvider(chain.id);
@@ -30,9 +29,10 @@ async function getPositions(
   contractAddress: string,
   userAddress: string
 ) {
+  // console.log("getPositions", contractAddress, userAddress);
   const contract = createMulticallContract(contractAddress, LimitOrderABI, provider); //to do
   const [positions] = await Promise.all([
-    contract.allPositions(),
+    contract.getPositions(userAddress),
   ]);
-  return positions.filter((position:any) => position.owner === userAddress);
+  return positions;
 }

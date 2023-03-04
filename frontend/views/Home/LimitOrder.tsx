@@ -55,7 +55,6 @@ export const LimitOrder = () => {
   const { mutate: usdcMutate} = useFetchUserToken( getTokenAddress("usdc", 80001), getstrategyAddress("limitOrder", 80001));
   const { mutate: positionMutate } = useFetchUserPositions(getstrategyAddress("limitOrder", 80001));
 
-  
   useEffect(() => {
     async function mutate() {
       wethMutate()
