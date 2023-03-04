@@ -18,7 +18,7 @@ const Wrapper = styled.div`
   width: 210px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 20px;
 `;
 const WalletBtn = styled(Box)`
   width: 100px;
@@ -27,9 +27,12 @@ const WalletBtn = styled(Box)`
   font-size: 14px;
   cursor: pointer;
   transition: 0.5s;
-  :hover {
+  border: 1px solid rgba(0, 0, 0, 0.1);
     background: white;
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.1);
+    :hover {
+      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.3);
+    }
   }
 `;
 const iconStyle = {

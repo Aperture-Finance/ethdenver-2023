@@ -10,23 +10,25 @@ import {utils} from "ethers";
 
 const StyledBox = styled.div`
   border-radius: 16px;
-  background-color: #f9f9f9;
-  border: 1px solid #e1e1e1;
+  background-color: black;
+  color: white;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.1);
   width: calc(100% - 32px);
   padding: 16px 16px;
   align-items: center;
   position: relative;
   margin: 20px 0px;
   cursor: default;
+  transition: all 0.3s ease-in-out;
   :hover {
+    color: black;
     background-color: white;
     transition: all 0.3s ease-in-out;
-    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.3);
   }
   display: grid;
-  grid-template-columns: 1.4fr 1fr;
+  grid-template-columns: 1.6fr 1fr;
 `;
-const Grid = styled.div``;
 const Flex = styled.div`
   width: 100%;
   display: flex;
@@ -90,7 +92,7 @@ const StyledArrow = styled(Arrow)`
 `;
 const SMTT = styled.div`
   font-size: 14px;
-  color: rgba(0, 0, 0, 0.6);
+  opacity: 0.6;
   margin-bottom:8px;
 `;
 

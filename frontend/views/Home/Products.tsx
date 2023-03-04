@@ -12,14 +12,6 @@ export interface ProductProps {
   description: string;
 }
 
-const Container = styled.div`
-  margin: 0;
-  position: absolute;
-  top: 50%;
-  -ms-transform: translateY(-50%);
-  transform: translateY(-50%);
-`;
-
 const CustomizedBox = styled(Box)<{ size: number }>`
   width: ${({ size }) => (size === 0 ? 500 : 200 - size * 50)}px;
   height: ${({ size }) => (size === 0 ? 350 : 150 - size * 25)}px;

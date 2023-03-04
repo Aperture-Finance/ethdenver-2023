@@ -11,7 +11,6 @@ import {
   Title,
 } from "@/packages/uikit/src";
 import styled from "styled-components";
-import { Arrow } from "./icon/down";
 import { EthIcon } from "./icon/eth";
 import { UsdcIcon } from "./icon/usdc";
 
