@@ -12,11 +12,12 @@ export const baseColors = {
   primary3:"#FAD494",
   primary4:"#FFE9C3",
   primary5:"#FFF9EE",
-  bg1:'#272C34',
+  bg1:'#202328',
   bg2:"#2B3137",
   bg3:"#494F55",
   white2:"#D1D4D8",
   yellow:"#FED32B",
+  background:'#F5F5F7',
 };
 
 export const lightColors: Colors = {

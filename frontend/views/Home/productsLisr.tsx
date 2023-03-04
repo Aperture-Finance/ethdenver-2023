@@ -1,5 +1,5 @@
 import { EthereumIcon, AvalancheIcon, UsdtEIcon } from "@/packages/assetkit/src/images";
-const styles = {width:'150%', height:'150%', position: 'absolute', zIndex:'0', opacity:'0.2'}
+const styles = {width:'100%', height:'100%', position: 'absolute', zIndex:'0', opacity:'1', right:'-40%', bottom:'-30%'}
 
 export const productsList = [
     {

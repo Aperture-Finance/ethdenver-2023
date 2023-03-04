@@ -5,8 +5,6 @@ export const GlobalStyle = createGlobalStyle`
     width: 100vw;
     height: 100vh;
     font-family: 'Quicksand', sans-serif;
-    color: white;
-    background: white;
     overflow-x: hidden;
     overflow-y: scroll;
   }
