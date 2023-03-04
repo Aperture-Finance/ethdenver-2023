@@ -12,21 +12,22 @@ export interface ProductProps {
 }
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-items: center;
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
 `;
 
 const CustomizedBox = styled(Box)<{ size: number }>`
-  width: ${({ size }) => (size === 0 ? 350 : 250 - size * 50)}px;
-  height: ${({ size }) => (size === 0 ? 175 : 125 - size * 25)}px;
+  width: ${({ size }) => (size === 0 ? 175 : 125 - size * 25)}px;
+  height: ${({ size }) => (size === 0 ? 350 : 250 - size * 50)}px;
   cursor: default;
   transition: 0.3s;
   position: relative;
   overflow: hidden;
   :hover {
-    background: ${ ({theme}) =>  theme.colors.white};
+    background: ${({ theme }) => theme.colors.white};
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.1);
   }
 `;
@@ -37,10 +38,11 @@ const ZIndex = styled.div`
 `;
 const Title = styled.div<{ hovered?: boolean }>`
   margin: auto;
-  font-size: ${({hovered}) => (hovered ? "22px" : "12px")};
-  font-weight: ${({hovered}) => (hovered ? "500" : "400")};
-  padding: ${({hovered}) => (hovered ? "10px" : "0px")};
-  ${({hovered}) => (hovered ? `font-family: "Chakra Petch", sans-serif;` : "")}
+  font-size: ${({ hovered }) => (hovered ? "22px" : "12px")};
+  font-weight: ${({ hovered }) => (hovered ? "500" : "400")};
+  padding: ${({ hovered }) => (hovered ? "10px" : "0px")};
+  ${({ hovered }) =>
+    hovered ? `font-family: "Chakra Petch", sans-serif;` : ""}
 `;
 const Description = styled.div<{ hovered?: boolean }>`
   padding: 5px 10px;
@@ -50,22 +52,36 @@ const Products: React.FC<ProductsProps> = ({ products }) => {
 
   //size 0, 1, 2,3
   return (
-    <Container>
-      {products.map((product, index) => (
-        <div key={"outerbox" + index} onMouseEnter={() => setHover(index)}>
-          <CustomizedBox
-            key={"box" + index}
-            size={Math.abs(hovered - index) > 3 ? 3 : Math.abs(hovered - index)}
-          >
-            {product.networkIcon}
-            <ZIndex>
-              <Title hovered={hovered === index}>{product.title}</Title>
-              {hovered === index &&<Description hovered={hovered === index}>{product.description}</Description>}
-            </ZIndex>
-          </CustomizedBox>
-        </div>
-      ))}
-    </Container>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        {products.map((product, index) => (
+          <div key={"outerbox" + index} onMouseEnter={() => setHover(index)}>
+            <CustomizedBox
+              key={"box" + index}
+              size={
+                Math.abs(hovered - index) > 3 ? 3 : Math.abs(hovered - index)
+              }
+            >
+              {product.networkIcon}
+              <ZIndex>
+                <Title hovered={hovered === index}>{product.title}</Title>
+                {hovered === index && (
+                  <Description hovered={hovered === index}>
+                    {product.description}
+                  </Description>
+                )}
+              </ZIndex>
+            </CustomizedBox>
+          </div>
+        ))}
+      </div>
   );
 };
 export default Products;

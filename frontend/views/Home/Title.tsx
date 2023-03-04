@@ -34,7 +34,7 @@ const Title = ({}) => {
         style={{
           position: "absolute",
           width: "105%",
-          height: "100%",
+          height: "105%",
           top: "0",
           left: "0",
           zIndex: "-1",

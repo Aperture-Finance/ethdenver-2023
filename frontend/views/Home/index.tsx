@@ -8,10 +8,16 @@ import { useRef } from "react";
 
 const Container = styled.div``;
 
-const Wrapper = styled.div`
+const Wrapper1 = styled.div`
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+`;
+const Wrapper2 = styled.div`
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #E1E6EF;
 `;
 
 export const Home = () => {
@@ -21,7 +27,7 @@ export const Home = () => {
 
   return (
     <Container>
-      <Wrapper
+      <Wrapper1
         ref={page1}
         onClick={() =>
           page2 &&
@@ -34,8 +40,8 @@ export const Home = () => {
         }
       >
         <Title />
-      </Wrapper>
-      <Wrapper
+      </Wrapper1>
+      <Wrapper2
         ref={page2}
         onClick={() =>
           page3 &&
@@ -48,10 +54,10 @@ export const Home = () => {
         }
       >
         <Products products={productsList} />
-      </Wrapper>
-      <Wrapper ref={page3}>
+      </Wrapper2>
+      <Wrapper2 ref={page3}>
         <LimitOrder />
-      </Wrapper>
+      </Wrapper2>
     </Container>
   );
 };
