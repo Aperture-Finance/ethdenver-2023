@@ -21,6 +21,6 @@ runs=256
 #mainnet = "${RPC_MAINNET}"
 optimism = "https://mainnet.optimism.io"
 avalanche = "https://api.avax.network/ext/bc/C/rpc"
-mumbai = "https://rpc.ankr.com/polygon_mumbai"
+polygon_mumbai = "https://rpc.ankr.com/polygon_mumbai"
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

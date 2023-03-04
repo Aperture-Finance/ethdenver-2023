@@ -6,9 +6,13 @@ import {AutomationRegistryInterface, State, Config} from "./interfaces/Automatio
 import {KeeperRegistrarInterface} from "./interfaces/KeeperRegistrarInterface.sol";
 import {LinkTokenInterface} from "@chainlink/contracts/src/v0.7/interfaces/LinkTokenInterface.sol";
 import {KeeperCompatibleInterface} from "@chainlink/contracts/src/v0.7/interfaces/KeeperCompatibleInterface.sol";
+import {FullMath} from "@uniswap/v3-core/contracts/libraries/FullMath.sol";
+
 import "./UniV3Automan.sol";
 
 contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
+    using FullMath for uint256;
+
     LinkTokenInterface public immutable i_link;
     address public immutable registrar;
     AutomationRegistryInterface public immutable i_registry;
@@ -16,9 +20,8 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
 
     constructor(
         AutomationRegistryInterface _registry,
-        INonfungiblePositionManager nonfungiblePositionManager,
-        address V3_FACTORY
-    ) UniV3Automan(nonfungiblePositionManager, V3_FACTORY) {
+        INonfungiblePositionManager nonfungiblePositionManager
+    ) UniV3Automan(nonfungiblePositionManager) {
         i_registry = _registry;
         (, Config memory config, ) = _registry.getState();
         address _registrar = config.registrar;
@@ -58,7 +61,6 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
             source,
             address(this)
         );
-
         i_link.transferAndCall(
             registrar,
             amount,
@@ -80,43 +82,89 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
         }
     }
 
+    function calculateTickAmount(
+        IUniswapV3Pool pool,
+        uint256 inputAmount,
+        uint256 outputAmount,
+        bool isZeroForOne
+    )
+        internal
+        view
+        returns (
+            int24 tickLower,
+            int24 tickUpper,
+            uint256 amount0Desired,
+            uint256 amount1Desired
+        )
+    {
+        int24 currentTick;
+        int24 tickSpacing;
+        {
+            (, currentTick, , , , , ) = pool.slot0();
+            tickSpacing = (pool).tickSpacing();
+        }
+        if (isZeroForOne) {
+            uint160 sqrtLimitPriceX96 = uint160(
+                Utils.sqrt(outputAmount.mulDiv(1 << 192, inputAmount))
+            );
+            tickLower = Utils.matchTickSpacing(
+                TickMath.getTickAtSqrtRatio(sqrtLimitPriceX96),
+                tickSpacing
+            );
+            tickUpper = currentTick;
+            (amount0Desired, amount1Desired) = (inputAmount, 0);
+        } else {
+            uint160 sqrtLimitPriceX96 = uint160(
+                Utils.sqrt(inputAmount.mulDiv(1 << 192, outputAmount))
+            );
+            tickUpper = Utils.matchTickSpacing(
+                TickMath.getTickAtSqrtRatio(sqrtLimitPriceX96),
+                tickSpacing
+            );
+            tickLower = currentTick;
+            (amount0Desired, amount1Desired) = (0, inputAmount);
+        }
+    }
+
     /// @notice Create a Uni v3 LP and limit order
     /// @param inputToken Token to sell
     /// @param outputToken Token to receive
     /// @param inputAmount Amount to sell
+    /// @param outputAmount Amount to receive if sold at the limit price
     /// @param fee Uni v3 pool fee tier
-    /// @param limitPrice Limit price defined as (outputToken / inputToken) * 1e18
     function createLimitOrder(
         address inputToken,
         address outputToken,
         uint256 inputAmount,
-        uint24 fee,
-        uint256 limitPrice
+        uint256 outputAmount,
+        uint24 fee
     ) external payable {
-        // TODO: Utils.matchTickSpacing
-        (address token0, address token1) = Utils.sortTokens(
-            inputToken,
-            outputToken
-        );
-        bool isZeroForOne;
-        int24 tickLower;
-        int24 tickUpper;
-        uint256 amount0Desired;
-        uint256 amount1Desired;
+        bool isZeroForOne = inputToken < outputToken;
+        (address token0, address token1) = isZeroForOne
+            ? (inputToken, outputToken)
+            : (outputToken, inputToken);
+        address pool = Utils.computePoolAddress(factory, token0, token1, fee);
         (
-            uint256 tokenId,
-            uint128 liquidity,
-            uint256 amount0,
-            uint256 amount1
-        ) = mint(
-                token0,
-                token1,
-                fee,
-                tickLower,
-                tickUpper,
-                amount0Desired,
-                amount1Desired
+            int24 tickLower,
+            int24 tickUpper,
+            uint256 amount0Desired,
+            uint256 amount1Desired
+        ) = calculateTickAmount(
+                IUniswapV3Pool(pool),
+                inputAmount,
+                outputAmount,
+                isZeroForOne
             );
+
+        (uint256 tokenId, , , ) = mint(
+            token0,
+            token1,
+            fee,
+            tickLower,
+            tickUpper,
+            amount0Desired,
+            amount1Desired
+        );
 
         uint256 upkeepID = registerAndPredictID(
             "LimitOrder",
@@ -137,7 +185,19 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
         });
     }
 
-    function cancelLimitOrder(uint256 positionId) external {}
+    function cancelLimitOrder(uint256 positionId) external {
+        LimitOrder storage order = orderInfo[positionId];
+        require(msg.sender == order.owner, "Only owner can cancel");
+        i_registry.cancelUpkeep(order.upkeepID);
+        (, , uint128 liquidity, , ) = getLiquidityPositionInfo(positionId);
+        closePosition(positionId, liquidity);
+    }
+
+    function closePosition(uint256 positionId, uint128 liquidity) internal {
+        decreaseLiquidity(positionId, liquidity, 0, 0);
+        collect(positionId);
+        orderInfo[positionId].completed = true;
+    }
 
     /**
      * @notice method that is simulated by the keepers to see if the limit order
@@ -172,8 +232,8 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
         uint256 positionId
     ) internal view returns (bool, uint128) {
         (
-            int24 tickLower,
-            int24 tickUpper,
+            ,
+            ,
             uint128 liquidity,
             uint256 amount0,
             uint256 amount1
@@ -213,7 +273,6 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
             positionId
         );
         require(upkeepNeeded, "condition not met");
-        decreaseLiquidity(positionId, liquidity, 0, 0);
-        collect(positionId);
+        closePosition(positionId, liquidity);
     }
 }

@@ -4,7 +4,7 @@ pragma abicoder v2;
 
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
-import "@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol";
+import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
 import "@uniswap/v3-core/contracts/libraries/TickMath.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol";
 import "@uniswap/v3-periphery/contracts/libraries/LiquidityAmounts.sol";
@@ -32,12 +32,13 @@ contract UniV3Automan is IERC721Receiver {
     // List of limit orders
     uint256[] public orderBook;
 
-    constructor(
-        INonfungiblePositionManager nonfungiblePositionManager,
-        address V3_FACTORY
-    ) {
+    constructor(INonfungiblePositionManager nonfungiblePositionManager) {
         NFPM = nonfungiblePositionManager;
-        factory = V3_FACTORY;
+        factory = nonfungiblePositionManager.factory();
+    }
+
+    function tokenURI(uint256 tokenId) public view returns (string memory) {
+        return NFPM.tokenURI(tokenId);
     }
 
     function getLiquidityPositionInfo(
@@ -100,6 +101,50 @@ contract UniV3Automan is IERC721Receiver {
         ) = NFPM.positions(tokenId);
     }
 
+    function transferAndApprove(
+        address token0,
+        address token1,
+        uint256 amount0Desired,
+        uint256 amount1Desired
+    ) internal {
+        IERC20(token0).safeTransferFrom(
+            msg.sender,
+            address(this),
+            amount0Desired
+        );
+        IERC20(token1).safeTransferFrom(
+            msg.sender,
+            address(this),
+            amount1Desired
+        );
+        IERC20(token0).safeApprove(address(NFPM), amount0Desired);
+        IERC20(token1).safeApprove(address(NFPM), amount1Desired);
+    }
+
+    function refundSurplus(
+        address token0,
+        address token1,
+        uint256 amount0Desired,
+        uint256 amount1Desired,
+        uint256 amount0Used,
+        uint256 amount1Used
+    ) internal {
+        if (amount0Used < amount0Desired) {
+            IERC20(token0).safeApprove(address(NFPM), 0);
+            IERC20(token0).safeTransfer(
+                msg.sender,
+                amount0Desired - amount0Used
+            );
+        }
+        if (amount1Used < amount1Desired) {
+            IERC20(token1).safeApprove(address(NFPM), 0);
+            IERC20(token1).safeTransfer(
+                msg.sender,
+                amount1Desired - amount1Used
+            );
+        }
+    }
+
     /// @notice Creates a new position wrapped in a NFT
     /// @dev Call this when the pool does exist and is initialized. Note that if the pool is created but not initialized
     /// a method does not exist, i.e. the pool is assumed to be initialized.
@@ -127,36 +172,30 @@ contract UniV3Automan is IERC721Receiver {
             uint256 amount1
         )
     {
-        IERC20(token0).safeTransferFrom(
-            msg.sender,
-            address(this),
-            amount0Desired
+        transferAndApprove(token0, token1, amount0Desired, amount1Desired);
+        (tokenId, liquidity, amount0, amount1) = NFPM.mint{value: msg.value}(
+            INonfungiblePositionManager.MintParams({
+                token0: token0,
+                token1: token1,
+                fee: fee,
+                tickLower: tickLower,
+                tickUpper: tickUpper,
+                amount0Desired: amount0Desired,
+                amount1Desired: amount1Desired,
+                amount0Min: 0,
+                amount1Min: 0,
+                recipient: address(this),
+                deadline: type(uint256).max
+            })
         );
-        IERC20(token1).safeTransferFrom(
-            msg.sender,
-            address(this),
-            amount1Desired
+        refundSurplus(
+            token0,
+            token1,
+            amount0Desired,
+            amount1Desired,
+            amount0,
+            amount1
         );
-        IERC20(token0).safeApprove(address(NFPM), amount0Desired);
-        IERC20(token1).safeApprove(address(NFPM), amount1Desired);
-        // TODO: refund
-
-        return
-            NFPM.mint{value: msg.value}(
-                INonfungiblePositionManager.MintParams({
-                    token0: token0,
-                    token1: token1,
-                    fee: fee,
-                    tickLower: tickLower,
-                    tickUpper: tickUpper,
-                    amount0Desired: amount0Desired,
-                    amount1Desired: amount1Desired,
-                    amount0Min: 0,
-                    amount1Min: 0,
-                    recipient: address(this),
-                    deadline: type(uint256).max
-                })
-            );
     }
 
     /// @notice Increases the amount of liquidity in a position, with tokens paid by the `msg.sender`
@@ -175,18 +214,28 @@ contract UniV3Automan is IERC721Receiver {
         payable
         returns (uint128 liquidity, uint256 amount0, uint256 amount1)
     {
-        // TODO: approve, transfer
-        return
-            NFPM.increaseLiquidity{value: msg.value}(
-                INonfungiblePositionManager.IncreaseLiquidityParams({
-                    tokenId: tokenId,
-                    amount0Desired: amount0Desired,
-                    amount1Desired: amount1Desired,
-                    amount0Min: 0,
-                    amount1Min: 0,
-                    deadline: type(uint256).max
-                })
-            );
+        (address token0, address token1, , , , , , ) = positions(tokenId);
+        transferAndApprove(token0, token1, amount0Desired, amount1Desired);
+        (liquidity, amount0, amount1) = NFPM.increaseLiquidity{
+            value: msg.value
+        }(
+            INonfungiblePositionManager.IncreaseLiquidityParams({
+                tokenId: tokenId,
+                amount0Desired: amount0Desired,
+                amount1Desired: amount1Desired,
+                amount0Min: 0,
+                amount1Min: 0,
+                deadline: type(uint256).max
+            })
+        );
+        refundSurplus(
+            token0,
+            token1,
+            amount0Desired,
+            amount1Desired,
+            amount0,
+            amount1
+        );
     }
 
     /// @notice Decreases the amount of liquidity in a position and accounts it to the position
