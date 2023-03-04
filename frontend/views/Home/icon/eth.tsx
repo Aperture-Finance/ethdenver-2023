@@ -1,5 +1,3 @@
-
-
 export const EthIcon: React.FC<React.PropsWithChildren> = (props) => {
   return (
     <svg
@@ -10,6 +8,8 @@ export const EthIcon: React.FC<React.PropsWithChildren> = (props) => {
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
+      {" "}
+      {/*@ts-ignore */}
       <g clipPath={`url(#${props.id}_eth_clip0)`}>
         <circle cx="20" cy="20" r="20" fill="#628DFE" />
         <path
@@ -67,6 +67,7 @@ export const EthIcon: React.FC<React.PropsWithChildren> = (props) => {
         />
       </g>
       <defs>
+        {/*@ts-ignore */}
         <clipPath id={`${props.id}_eth_clip0`}>
           <rect width="40" height="40" fill="white" />
         </clipPath>

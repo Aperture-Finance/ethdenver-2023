@@ -9,7 +9,7 @@ export const UsdcIcon: React.FC<React.PropsWithChildren> = (
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
-    >
+    > {/*@ts-ignore */}
       <g clipPath={`url(#${props.id}_usdc_clip0)`}>
         <path
           d="M20 40C31.0834 40 40 31.0834 40 20C40 8.9166 31.0834 0 20 0C8.9166 0 0 8.9166 0 20C0 31.0834 8.9166 40 20 40Z"
@@ -24,7 +24,7 @@ export const UsdcIcon: React.FC<React.PropsWithChildren> = (
           fill="white"
         />
       </g>
-      <defs>
+      <defs>{/*@ts-ignore */}
         <clipPath id={`${props.id}_usdc_clip0`}>
           <rect width="40" height="40" fill="white" />
         </clipPath>

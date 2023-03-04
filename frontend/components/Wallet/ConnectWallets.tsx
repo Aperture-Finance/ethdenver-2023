@@ -53,10 +53,10 @@ const ConnectWallets = (props:any) => {
 
   const wallets = ["Metamask", "Coinbase", "Wallet Connect", "OKX"];
   const walletIcons = [
-    <MetamaskIcon style={iconStyle} />,
-    <CoinbaseIcon style={iconStyle} />,
-    <WalletConnectIcon style={iconStyle} />,
-    <OkxIcon style={iconStyle} />,
+    <MetamaskIcon style={iconStyle} key="metamask"/>,
+    <CoinbaseIcon style={iconStyle} key="coinbase"/>,
+    <WalletConnectIcon style={iconStyle} key="walletconnect"/>,
+    <OkxIcon style={iconStyle} key="okx"/>,
   ];
   return (
     <div {...props}>
