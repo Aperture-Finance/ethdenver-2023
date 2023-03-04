@@ -8,7 +8,9 @@ import ConnectWallets from "@/components/Wallet/ConnectWallets";
 import { getstrategyAddress, getTokenAddress } from "@/config/contracts";
 import { useFetchUserToken } from "@/hooks/useFetchUserToken";
 import { useFetchUserPositions } from "@/hooks/useFetchUserPosition";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useInView } from 'react-hook-inview';
+import SmoothList from 'react-smooth-list';
 
 const StyledBox = styled(Box)`
   max-width: 1000px;
@@ -46,12 +48,14 @@ const StyledConnectWallets = styled(ConnectWallets)`
 `;
 
 export const LimitOrder = () => {
+  
   const { disconnect } = useDisconnect();
   const { isConnected } = useAccount();
   const { mutate: wethMutate} = useFetchUserToken( getTokenAddress("weth", 80001), getstrategyAddress("limitOrder", 80001));
   const { mutate: usdcMutate} = useFetchUserToken( getTokenAddress("usdc", 80001), getstrategyAddress("limitOrder", 80001));
   const { mutate: positionMutate } = useFetchUserPositions(getstrategyAddress("limitOrder", 80001));
 
+  
   useEffect(() => {
     async function mutate() {
       wethMutate()
@@ -64,7 +68,16 @@ export const LimitOrder = () => {
     return () => clearInterval(intervalId)
   }, [])
 
+  const [ref, isVisible] = useInView({threshold: 0.5})
+  const [view, setView] = useState(false);
+  useEffect(() => {
+  		setTimeout(() => {
+  			isVisible ? setView(true) : setView(false)
+  		}, 100)
+  }, [isVisible])
   return (
+    <span ref={ref}>
+      <SmoothList transitionDuration={1000} delay={100} visible={view}>
     <StyledBox>
       <StyledTitle>
         UniV3 Limit Order
@@ -83,5 +96,7 @@ export const LimitOrder = () => {
         <StyledConnectWallets />
       )}
     </StyledBox>
+    </SmoothList>
+    </span>
   );
 };
