@@ -1,10 +1,8 @@
-import { ChangeEventHandler } from "react";
-
 export interface TextInputProps {
-  id?: string;
+  id: string;
   initialValue?: string;
-  placeholder?: string;
-  onTyping?: ChangeEventHandler<HTMLInputElement>;
-  showErrMsg?: boolean;
-  errMsg?: string;
+  placeholder: string;
+  notes?: string;
+  onChange: (str: string) => void;
+  onError: (str: string) => boolean;
 }

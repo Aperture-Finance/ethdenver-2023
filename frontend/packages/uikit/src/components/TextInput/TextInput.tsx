@@ -2,74 +2,59 @@ import React from "react";
 import styled from "styled-components";
 import { TextInputProps } from "./types";
 
-const StyledInput = styled.input<{ showErrMsg: boolean }>`
+const StyledInput = styled.input`
+  color: black;
+  border-radius: 12px;
+  border: 1px solid #e1e1e1;
+  height: 20px;
+  padding: 16px 88px 16px 32px;
   display: block;
-  width: 683px;
-  height: 25px;
-  padding: 37px 50px;
-  font-family: "Quicksand";
+  width: calc(100% - 120px);
+  background-color: #f9f9f9;
+  :is(:focus, :active) {
+    background-color: transparent;
+    outline: none;
+  }
+  *:focus {
+    outline: none !important;
+  }
+  font-family: "Chakra Petch", sans-serif;
   font-style: normal;
-  font-weight: 300;
-  font-size: 25px;
+  font-size: 22px;
   line-height: 100%;
-  text-align: justify;
-  color: #ffffff;
-  border-radius: 25px;
-  border: 2px solid ${({ showErrMsg }) => (showErrMsg ? "#ff0000" : "#000000")};
-  background-color: ${({ showErrMsg }) => (showErrMsg ? "#6670f5" : "#4751da")};
-  background-clip: padding-box;
-  backdrop-filter: blur(40px);
-
-  :is(:hover, :focus, :active) {
-    border: 2px solid ${({ showErrMsg }) => (showErrMsg ? "#ff0000" : "black")};
-    background: #6670f5;
-  }
-
-  ::placeholder {
-    color: #ffffff;
-    opacity: 0.75;
-  }
 `;
 
-const ErrorMsg = styled.p`
-  margin: 14px 0 0 50px;
-  height: 25px;
-  width: 633px;
-  font-family: "Quicksand";
-  font-style: normal;
-  font-weight: 400;
-  font-size: 25px;
-  line-height: 100%;
-  text-align: justify;
-  color: #ff0000;
+const Notes = styled.span`
+  text-transform: uppercase;
+  font-size: 22px;
+  position: absolute;
+  right: 16px;
+  top: 14px;
 `;
-
-const handleChange = (event: any) => {
-  console.log(event.target.value);
-};
 
 const TextInput: React.FC<TextInputProps> = ({
-  id = "",
+  id,
   initialValue = "",
-  placeholder = "",
-  onTyping = handleChange,
-  showErrMsg = false,
-  errMsg = "",
+  placeholder,
+  onChange,
+  onError,
+  notes,
 }) => {
+  const handleChange = (event: any) => {
+    onChange(event.target.value);
+    onError(event.target.value);
+  };
   return (
-    <>
-      <div>
-        <StyledInput
-          id={id}
-          type="text"
-          defaultValue={initialValue}
-          placeholder={placeholder}
-          showErrMsg={showErrMsg}
-          onChange={onTyping}
-        />
-        {showErrMsg && <ErrorMsg>{errMsg}</ErrorMsg>}
-      </div>
-    </>
+    <div style={{position:'relative'}}>
+      <StyledInput
+        id={id}
+        defaultValue={initialValue}
+        placeholder={placeholder}
+        onChange={handleChange}
+        type="number"
+      />
+      <Notes>{notes}</Notes>
+    </div>
   );
 };
 

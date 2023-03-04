@@ -11,11 +11,14 @@
     "start": "next start",
     "lint": "next lint"
   },
-  "dependencies": {    "@0xsequence/multicall": "^0.43.14",
+  "dependencies": {
+    "@0xsequence/multicall": "^0.43.14",
     "@aperture/assetkit": "*",
     "@aperture/uikit": "*",
     "@next/font": "13.1.3",
     "@spectral-finance/spectral-modal": "^0.0.1-beta-21",
+    "@splinetool/react-spline": "^2.2.6",
+    "@splinetool/runtime": "^0.9.251",
     "@types/lodash": "^4.14.191",
     "@types/node": "18.11.18",
     "@types/react": "18.0.27",

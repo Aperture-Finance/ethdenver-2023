@@ -3,6 +3,8 @@ import { WagmiConfig } from "wagmi";
 import { client } from "@/utils/wagmi";
 import { dark, light, UIKitProvider } from "@aperture/uikit";
 import { SWRConfig } from "swr";
+import {GlobalStyle } from "@/GlobalStyle";
+
 import { SpectralProvider } from "@spectral-finance/spectral-modal";
 import "@spectral-finance/spectral-modal/dist/esm/styles/Icon.css";
 
@@ -12,7 +14,7 @@ const StyledUIKitProvider: React.FC<React.PropsWithChildren> = ({
 }) => {
   const { resolvedTheme } = useTheme();
   return (
-    <UIKitProvider theme={resolvedTheme === "dark" ? dark : light} {...props}>
+    <UIKitProvider theme={light} {...props}>
       {children}
     </UIKitProvider>
   );
@@ -33,6 +35,7 @@ const Providers: React.FC<
     <WagmiConfig client={client}>
       <ThemeProvider>
         <StyledUIKitProvider>
+        <GlobalStyle />
           <SWRConfig>
             {/* <SpectralProvider
               logo=""

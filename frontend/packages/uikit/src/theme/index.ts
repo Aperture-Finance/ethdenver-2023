@@ -1,6 +1,7 @@
 import {
   Breakpoints,
   Colors,
+  Gradients,
   MediaQueries,
   Radii,
   Shadows,
@@ -12,6 +13,7 @@ export interface ApertureTheme {
   siteWidth: number;
   isDark: boolean;
   colors: Colors;
+  gradients: Gradients;
   breakpoints: Breakpoints;
   mediaQueries: MediaQueries;
   spacing: Spacing;
