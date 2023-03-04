@@ -18,7 +18,7 @@ const Wrapper2 = styled.div`
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background-color: #E1E6EF;
+  background-color: ${({ theme }) => theme.colors.background};
   position: relative;
 `;
 

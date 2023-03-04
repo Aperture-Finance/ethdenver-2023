@@ -7,11 +7,18 @@ export const baseColors = {
   gray1:"#f1f1f1",
   gray2:"#e1e1e1",
   error:'red',
-  primary:"#FFAF29",
-  primary2:"#FFC461",
+  primary:"red",
+  primary2:"#FB5871",
   primary3:"#FAD494",
   primary4:"#FFE9C3",
   primary5:"#FFF9EE",
+  bg1:'#202328',
+  bg2:"#2B3137",
+  bg3:"#494F55",
+  white2:"#D1D4D8",
+  yellow:"#FED32B",
+  red: "#FB5871",
+  background:'#F5F5F7',
 };
 
 export const lightColors: Colors = {

@@ -15,6 +15,9 @@ const DropdownBtn = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
+  :hover {
+    background-color: white;
+  }
 `;
 
 const DropdownContent = styled.div`
@@ -22,7 +25,7 @@ const DropdownContent = styled.div`
   width: 100%;
   border-radius: 16px;
   background-color: #f9f9f9;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.3);
   padding: 16px 0px;
   z-index: 1;
   visibility: hidden;
@@ -48,7 +51,7 @@ const CoinCard = styled.div`
   cursor: pointer;
   opacity: 1;
   &:hover {
-    background-color: #f1f1f1;
+    background-color: rgba(0, 0, 0, 0.07);
     transition: background-color 0.2s ease-in-out;
     padding: 4px 20px;
   }

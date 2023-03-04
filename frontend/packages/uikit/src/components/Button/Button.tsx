@@ -9,18 +9,18 @@ const Btn = styled.div<{
 }>`
   border-radius: 12px;
   font-size: 16px;
-  background-color: ${({ error, theme, primary, outline }) =>
+  background: ${({ error, theme, primary, outline }) =>
     error
-      ? theme.colors.gray2
+      ? theme.colors.red
       : primary
-      ? theme.colors.primary
+      ? "linear-gradient(45deg, #ffaf29 0%, #c000a1 100%)"
       : outline
       ? "transparent"
       : theme.colors.gray};
   border: 1px solid
     ${({ theme, primary, error, outline }) =>
       primary && !error
-        ? theme.colors.primary
+        ? "white"
         : outline
         ? "transparent"
         : theme.colors.gray2};
@@ -34,7 +34,7 @@ const Btn = styled.div<{
   cursor: ${({ error }) => (error ? "not-allowed" : "pointer")};
   color: ${({ error, primary, theme, outline }) =>
     error
-      ? "red"
+      ? "white"
       : primary
       ? "white"
       : outline
@@ -43,15 +43,16 @@ const Btn = styled.div<{
   &:hover {
     background-color: ${({ error, primary, theme, outline }) =>
       error
-        ? theme.colors.gray2
+        ? theme.colors.red
         : primary
-        ? theme.colors.primary2
+        ? "linear-gradient(90deg, #ffaf29 0%, #c000a1 100%)"
         : outline
         ? "transparent"
         : theme.colors.gray1};
     ${({ outline, theme }) =>
       outline ? "color: " + theme.colors.primary + ";" : ""}
-    transition: background-color 0.2s ease-in-out;
+    transition: 0.2s ease-in-out;
+    ${({ primary }) => `box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);`}
   }
 `;
 
@@ -70,7 +71,7 @@ const SmallBtn = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
-  color: ${({ theme }) => theme.colors.primary2};
+  color: ${({ theme }) => theme.colors.red};
   &:hover {
     color: ${({ theme }) => theme.colors.primary};
     transition: background-color 0.2s ease-in-out;

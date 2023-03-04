@@ -15,6 +15,7 @@
     "@0xsequence/multicall": "^0.43.14",
     "@aperture/assetkit": "*",
     "@aperture/uikit": "*",
+    "@everipedia/wagmi-magic-connector": "^0.10.0",
     "@next/font": "13.1.3",
     "@spectral-finance/spectral-modal": "^0.0.1-beta-21",
     "@splinetool/react-spline": "^2.2.6",
@@ -37,6 +38,8 @@
     "prettier": "^2.8.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-hook-inview": "^4.5.0",
+    "react-smooth-list": "^1.0.3",
     "swr": "^2.0.3",
     "typescript": "4.9.4",
     "wagmi": "^0.10.11"

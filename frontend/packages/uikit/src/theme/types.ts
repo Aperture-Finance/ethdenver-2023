@@ -37,6 +37,13 @@ export type Colors = {
   error: string;
   primary:string;
   primary2:string;
+  bg1: string;
+  bg2: string;
+  bg3: string;
+  white2: string;
+  yellow: string;
+  red: string;
+  background:string;
 
   // going to get deleted
   textAlt: string;

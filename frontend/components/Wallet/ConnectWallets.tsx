@@ -10,15 +10,16 @@ import {
   CoinbaseIcon,
   WalletConnectIcon,
   OkxIcon,
+  MagicIcon
 } from "@aperture/assetkit";
 import styled from "styled-components";
 import { Box, Title } from "@/packages/uikit/src";
 
 const Wrapper = styled.div`
-  width: 210px;
+  width: 340px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
 `;
 const WalletBtn = styled(Box)`
   width: 100px;
@@ -27,9 +28,12 @@ const WalletBtn = styled(Box)`
   font-size: 14px;
   cursor: pointer;
   transition: 0.5s;
-  :hover {
+  border: 1px solid rgba(0, 0, 0, 0.1);
     background: white;
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.1);
+    :hover {
+      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.3);
+    }
   }
 `;
 const iconStyle = {
@@ -51,12 +55,14 @@ const ConnectWallets = (props:any) => {
   const { disconnect } = useDisconnect();
   const { data } = useBalance({ address });
 
-  const wallets = ["Metamask", "Coinbase", "Wallet Connect", "OKX"];
+  const wallets = ["Metamask", "Coinbase", "Wallet Connect", "OKX", "Magic Auth", "Magic Wallet"];
   const walletIcons = [
     <MetamaskIcon style={iconStyle} key="metamask"/>,
     <CoinbaseIcon style={iconStyle} key="coinbase"/>,
     <WalletConnectIcon style={iconStyle} key="walletconnect"/>,
     <OkxIcon style={iconStyle} key="okx"/>,
+    <MagicIcon style={iconStyle} key="magic-auth"/>,
+    <MagicIcon style={iconStyle} key="magic"/>,
   ];
   return (
     <div {...props}>

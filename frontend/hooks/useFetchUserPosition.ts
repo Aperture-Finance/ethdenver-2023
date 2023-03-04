@@ -12,13 +12,13 @@ import { providers } from "@0xsequence/multicall";
 export function useFetchUserPositions(
   contractAddress: string
 ) {
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const { chain } = useNetwork();
 
   return useSWR(`useFetchUserPositions`, async () => {
     if (isConnected && chain && chain.id ) {
       const provider = createMulticallProvider(chain.id);
-      return getPositions(provider, contractAddress)
+      return getPositions(provider, contractAddress, address)
     }
     return [];
   });
@@ -27,11 +27,12 @@ export function useFetchUserPositions(
 
 async function getPositions(
   provider: providers.MulticallProvider,
-  contractAddress: string
+  contractAddress: string,
+  userAddress: string
 ) {
   const contract = createMulticallContract(contractAddress, LimitOrderABI, provider); //to do
   const [positions] = await Promise.all([
     contract.allPositions(),
   ]);
-  return positions;
+  return positions.filter((position:any) => position.owner === userAddress);
 }
