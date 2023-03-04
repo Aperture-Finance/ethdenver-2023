@@ -1,3 +1,5 @@
+import { getstrategyAddress } from "@/config/contracts";
+import { useFetchUserPositions } from "@/hooks/useFetchUserPosition";
 import {
   ButtonGroups,
   Dropdown,
@@ -32,6 +34,9 @@ const StyledUsdcIcon = styled(UsdcIcon)`
 `;
 
 export const Positions = () => {
+  const {data, isLoading } = useFetchUserPositions(getstrategyAddress("limitOrder", 80001))
+  if (!isLoading) {console.log(data)}
+
   const TokenList: [Token, Token] = [
     {
       name: "Wrapped Ethereum",

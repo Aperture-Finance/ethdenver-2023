@@ -82,7 +82,7 @@ export const Swap = () => {
       <Grid>
         <Subtitle>Fee Tier: </Subtitle>
         <ButtonGroups
-          onSelect={(feeTier: number) => setFeeTier(feeTier * 100)}
+          onSelect={(feeTier: number) => setFeeTier(feeTier * 10000)}
         />
       </Grid>
       <Subtitle>Deposit Amount:</Subtitle>

@@ -9,16 +9,16 @@ import { ERC20TokenMap } from "@/config/token/tokenMap";
 import { getTokenAddress } from "@/config/contracts";
 import { providers } from "@0xsequence/multicall";
 
-export function useFetchUserTokens(
+export function useFetchUserPositions(
   contractAddress: string
 ) {
-  const { address: walletAddress, isConnected } = useAccount();
+  const { isConnected } = useAccount();
   const { chain } = useNetwork();
 
   return useSWR(`useFetchUserPositions`, async () => {
-    if (isConnected && chain && chain.id && walletAddress) {
+    if (isConnected && chain && chain.id ) {
       const provider = createMulticallProvider(chain.id);
-      return getPositions(provider, walletAddress, contractAddress)
+      return getPositions(provider, contractAddress)
     }
     return [];
   });
@@ -27,12 +27,11 @@ export function useFetchUserTokens(
 
 async function getPositions(
   provider: providers.MulticallProvider,
-  walletAddress: string,
   contractAddress: string
 ) {
   const contract = createMulticallContract(contractAddress, ERC20ABI, provider); //to do
   const [positions] = await Promise.all([
-    contract.balanceOf(walletAddress),
+    contract.allPositions(),
   ]);
   return positions;
 }
