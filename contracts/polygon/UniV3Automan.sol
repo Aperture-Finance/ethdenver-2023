@@ -41,9 +41,9 @@ contract UniV3Automan is IERC721Receiver {
         return NFPM.tokenURI(tokenId);
     }
 
-    function getLiquidityPositionInfo(
+    function getLiquidityAmounts(
         uint256 positionId
-    ) internal view returns (int24, int24, uint128, uint256, uint256) {
+    ) internal view returns (uint128, uint256, uint256) {
         (
             address token0,
             address token1,
@@ -65,7 +65,84 @@ contract UniV3Automan is IERC721Receiver {
                 tickUpper.getSqrtRatioAtTick(),
                 liquidity
             );
-        return (tickLower, tickUpper, liquidity, amount0, amount1);
+        return (liquidity, amount0, amount1);
+    }
+
+    struct PositionInfo {
+        uint256 positionId;
+        address owner;
+        bool isZeroForOne;
+        bool completed;
+        uint256 upkeepID;
+        address token0;
+        address token1;
+        uint24 fee;
+        int24 tickLower;
+        int24 tickUpper;
+        uint128 liquidity;
+        uint256 amount0;
+        uint256 amount1;
+        uint256 desiredAmount;
+    }
+
+    function getPositionInfo(
+        uint256 positionId
+    ) public view returns (PositionInfo memory posInfo) {
+        posInfo.positionId = positionId;
+        (
+            posInfo.token0,
+            posInfo.token1,
+            posInfo.fee,
+            posInfo.tickLower,
+            posInfo.tickUpper,
+            posInfo.liquidity,
+            ,
+
+        ) = positions(positionId);
+        address pool = Utils.computePoolAddress(
+            factory,
+            posInfo.token0,
+            posInfo.token1,
+            posInfo.fee
+        );
+        (uint160 sqrtPriceX96, , , , , , ) = IUniswapV3PoolState(pool).slot0();
+
+        uint160 sqrtLowerPriceX96 = posInfo.tickLower.getSqrtRatioAtTick();
+        uint160 sqrtUpperPriceX96 = posInfo.tickUpper.getSqrtRatioAtTick();
+        // Find current amount of the two tokens in the liquidity position.
+        (posInfo.amount0, posInfo.amount1) = LiquidityAmounts
+            .getAmountsForLiquidity(
+                sqrtPriceX96,
+                sqrtLowerPriceX96,
+                sqrtUpperPriceX96,
+                posInfo.liquidity
+            );
+        LimitOrder storage order = orderInfo[positionId];
+        posInfo.owner = order.owner;
+        posInfo.isZeroForOne = order.isZeroForOne;
+        posInfo.completed = order.completed;
+        posInfo.upkeepID = order.upkeepID;
+        if (posInfo.isZeroForOne) {
+            posInfo.desiredAmount = LiquidityAmounts.getAmount0ForLiquidity(
+                sqrtLowerPriceX96,
+                sqrtUpperPriceX96,
+                posInfo.liquidity
+            );
+        } else {
+            posInfo.desiredAmount = LiquidityAmounts.getAmount1ForLiquidity(
+                sqrtLowerPriceX96,
+                sqrtUpperPriceX96,
+                posInfo.liquidity
+            );
+        }
+    }
+
+    function allPositions() external view returns (PositionInfo[] memory pos) {
+        uint256 length = orderBook.length;
+        pos = new PositionInfo[](length);
+        for (uint256 i; i < length; ++i) {
+            pos[i] = getPositionInfo(orderBook[i]);
+        }
     }
 
     function positions(
@@ -84,7 +161,6 @@ contract UniV3Automan is IERC721Receiver {
             uint128 tokensOwed1
         )
     {
-        // TODO: To be optimized
         (
             ,
             ,

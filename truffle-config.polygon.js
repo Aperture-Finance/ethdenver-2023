@@ -73,6 +73,10 @@ module.exports = {
       },
     }
   },
+  plugins: ['truffle-plugin-verify'],
+  api_keys: {
+    testnet_polygonscan: process.env["POLYGONSCAN_API_KEY"],
+  },
   db: {
     enabled: true
   }

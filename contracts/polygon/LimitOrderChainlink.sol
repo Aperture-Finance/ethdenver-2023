@@ -189,7 +189,7 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
         LimitOrder storage order = orderInfo[positionId];
         require(msg.sender == order.owner, "Only owner can cancel");
         i_registry.cancelUpkeep(order.upkeepID);
-        (, , uint128 liquidity, , ) = getLiquidityPositionInfo(positionId);
+        (uint128 liquidity, , ) = getLiquidityAmounts(positionId);
         closePosition(positionId, liquidity);
     }
 
@@ -232,12 +232,10 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
         uint256 positionId
     ) internal view returns (bool, uint128) {
         (
-            ,
-            ,
             uint128 liquidity,
             uint256 amount0,
             uint256 amount1
-        ) = getLiquidityPositionInfo(positionId);
+        ) = getLiquidityAmounts(positionId);
 
         bool upkeepNeeded;
         if (orderInfo[positionId].isZeroForOne) {
