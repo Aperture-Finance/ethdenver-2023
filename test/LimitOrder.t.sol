@@ -23,8 +23,6 @@ contract LimitOrder is Test {
         LO = new LimitOrderChainlink(registry, NFPM);
         LINK = LO.i_link();
         deal(address(LINK), address(LO), 5000000000000000000);
-        console2.log("Link token %s", address(LINK));
-        console2.log(LO.registrar());
     }
 
     function testCreateLimitOrder() public {

@@ -50,21 +50,21 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
     ) internal returns (uint256 upkeepID) {
         (State memory state, , ) = i_registry.getState();
         uint256 oldNonce = state.nonce;
-        bytes memory payload = abi.encode(
-            name,
-            encryptedEmail,
-            upkeepContract,
-            gasLimit,
-            adminAddress,
-            checkData,
-            amount,
-            source,
-            address(this)
-        );
         i_link.transferAndCall(
             registrar,
             amount,
-            abi.encodeWithSelector(registerSig, payload)
+            abi.encodeWithSelector(
+                registerSig,
+                name,
+                encryptedEmail,
+                upkeepContract,
+                gasLimit,
+                adminAddress,
+                checkData,
+                amount,
+                source,
+                address(this)
+            )
         );
         (state, , ) = i_registry.getState();
         if (state.nonce == oldNonce + 1) {
