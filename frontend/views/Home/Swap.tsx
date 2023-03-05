@@ -1,5 +1,6 @@
 import { getstrategyAddress, getTokenAddress } from "@/config/contracts";
 import { ERC20TokenMap } from "@/config/token/tokenMap";
+import { useFetchCurrentPirce } from "@/hooks/useFetchCurrentPrice";
 import { useFetchUserToken, useFetchUserTokens } from "@/hooks/useFetchUserToken";
 import {
   ButtonGroups,
@@ -50,6 +51,7 @@ export const Swap = (props:any) => {
   const [amount, setAmount] = useState<string | null>(null);
   const { data: wethData, error: wethError, isLoading: wethisLoading, } = useFetchUserToken(getTokenAddress('weth', 80001), getstrategyAddress("limitOrder", 80001));
   const { data: usdcData, error: usdcError, isLoading: usdcisLoading} = useFetchUserToken(getTokenAddress('usdc', 80001), getstrategyAddress("limitOrder", 80001));
+  const { data: currentPriceData, error: currentPriceError, isLoading: currentPriceisLoading} = useFetchCurrentPirce()
   
   if(!wethisLoading && !usdcisLoading && wethData && usdcData){
     TokenList[0].balance = Number(utils.formatUnits(wethData?.balanceBN, ERC20TokenMap.weth.decimals))
@@ -58,7 +60,10 @@ export const Swap = (props:any) => {
     TokenList2[1].balance = Number(utils.formatUnits(usdcData?.balanceBN, ERC20TokenMap.weth.decimals))
   }
  
-  
+  let currentp = 1
+  if (!currentPriceError && !currentPriceisLoading && currentPriceData) {
+    currentp = parseFloat(utils.formatEther(currentPriceData?.currentPrice))
+  }
   return (
     <Wrapper>
       <Subtitle>Pay with:</Subtitle>
@@ -78,7 +83,7 @@ export const Swap = (props:any) => {
       <Subtitle>Upper Tick Price:</Subtitle>}
       <Grid> {/* @ts-ignore */}
         {/* {props.limit&&<Title style={{whiteSpace: "nowrap"}}>1 {tokenA?.ticker ?? "Token"} </Title> }@ts-ignore */}
-        {!props.limit&& <Box>4.023 {tokenB?.ticker ?? "Token"}</Box>}
+        {!props.limit&& <Box>{tokenA && tokenB && currentPriceData&& currentp&&tokenA.ticker.toLocaleLowerCase()==="weth"?currentp.toFixed(2):(1/currentp).toFixed(2)} {tokenB?.ticker ?? "Token"}</Box>}
         {!props.limit&&<StyledArrow />}
         <TextInput
           id="text-input"
