@@ -57,8 +57,8 @@ export const EvmChainMap: TEvmChainMap = {
       decimals: 18,
     },
     rpc: [
-      "https://polygon-mumbai.infura.io/v3/bb6b43e1a427457ea9ac942040f831c4",
-      `wss://polygon-mumbai.infura.io/v3/bb6b43e1a427457ea9ac942040f831c4`,
+      `https://polygon-mumbai.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_API_KEY}`,
+      `wss://polygon-mumbai.infura.io/v3/9fa3b201109340e68a31150267b8485b`,
       "https://rpc.mumbai.mudit.blog/",
     ],
     faucets: [

@@ -5,6 +5,8 @@ import {BWDarkLogo} from "@aperture/assetkit";
 
 export interface ProductsProps {
   products: ProductProps[];
+  goto3: () => void;
+  goto4: () => void;
 }
 export interface ProductProps {
   networkIcon: ReactNode;
@@ -57,13 +59,13 @@ const LearnMore = styled.div`
   bottom: 20px;
   left: 20px;
   `
-const Products: React.FC<ProductsProps> = ({ products }) => {
-  const [hovered, setHover] = useState(Math.floor(products.length / 2));
+const Products: React.FC<ProductsProps> = ({ products, goto3, goto4 }) => {
+  const [hovered, setHover] = useState(0);
 
   //size 0, 1, 2,3
   return (
   <>
-    <div style={{position:'absolute', top:'20%', width:'100%', textAlign:'center', fontSize:'35px', fontFamily:'"Chakra Petch", sans-serif'}}>The latest. Take a look at what’s new, right now.</div>
+    <div style={{position:'absolute', top:'15%', width:'100%', textAlign:'center', fontSize:'35px', fontFamily:'"Chakra Petch", sans-serif'}}>The latest. Take a look at what’s new, right now.</div>
       <div
         style={{
           display: "flex",
@@ -76,7 +78,7 @@ const Products: React.FC<ProductsProps> = ({ products }) => {
       >
         
         {products.map((product, index) => (
-          <div key={"outerbox" + index} onMouseEnter={() => setHover(index)}>
+          <div key={"outerbox" + index} onMouseEnter={() => setHover(index)} onClick={() => index===0?goto3():goto4()}>
             <CustomizedBox
               key={"box" + index}
               size={

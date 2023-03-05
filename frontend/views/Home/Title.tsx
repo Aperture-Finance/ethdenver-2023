@@ -9,10 +9,10 @@ const Wrapper = styled.div`
 const TitleT = styled.div`
   width: fit-content;
   font-family: "Chakra Petch", sans-serif;
-  font-size: 60px;
+  font-size: 50px;
   position: absolute;
   right: 50px;
-  bottom: 80px;
+  bottom: 100px;
   font-weight: 600;
 `;
 
@@ -26,8 +26,8 @@ const SubTitle = styled.div`
 const Title = ({}) => {
   return (
     <>
-      <TitleT>Title Limit Order</TitleT>
-      <SubTitle>Here is the subtitle, Here is the subtitle, subtitle</SubTitle>
+      <TitleT>Revenue Generating Limit<br/>& Range Orders on Polygon</TitleT>
+      <SubTitle>Leveraging single-sided liquidity on CLMM DEX's for better swaps</SubTitle>
 
       <Spline
         scene="https://prod.spline.design/ALqUW0zqNf15LNEW/scene.splinecode"

@@ -11,6 +11,7 @@ import "./UniV3Automan.sol";
 
 contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
     using FullMath for uint256;
+    using TickMath for int24;
 
     AutomationRegistryInterface public immutable i_registry;
     address internal immutable registrar;
@@ -130,18 +131,90 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
             revert("Limit price should be higher than current");
     }
 
+    function currentPrice(
+        address inputToken,
+        address outputToken,
+        uint256 inputAmount,
+        uint24 fee
+    ) external view returns (uint256 currentAmount) {
+        bool isZeroForOne = inputToken < outputToken;
+        (address token0, address token1) = isZeroForOne
+            ? (inputToken, outputToken)
+            : (outputToken, inputToken);
+        address pool = Utils.computePoolAddress(factory, token0, token1, fee);
+        (uint160 sqrtRatioX96, , , , , , ) = IUniswapV3Pool(pool).slot0();
+        if (isZeroForOne) {
+            currentAmount = Utils.mulSquareX96(inputAmount, sqrtRatioX96);
+        } else {
+            currentAmount = Utils.divSquareX96(inputAmount, sqrtRatioX96);
+        }
+    }
+
+    function previewOutput(
+        address inputToken,
+        address outputToken,
+        uint256 inputAmount,
+        uint256 limitAmount,
+        uint24 fee
+    ) external view returns (uint256 outputAmount) {
+        bool isZeroForOne = inputToken < outputToken;
+        (address token0, address token1) = isZeroForOne
+            ? (inputToken, outputToken)
+            : (outputToken, inputToken);
+        uint128 liquidity;
+        address pool = Utils.computePoolAddress(factory, token0, token1, fee);
+        (
+            int24 tickLower,
+            int24 tickUpper,
+            uint256 amount0Desired,
+            uint256 amount1Desired
+        ) = calculateTickAmount(
+                IUniswapV3Pool(pool),
+                inputAmount,
+                limitAmount,
+                isZeroForOne
+            );
+        if (isZeroForOne) {
+            uint160 sqrtRatioAX96 = tickLower.getSqrtRatioAtTick();
+            uint160 sqrtRatioBX96 = tickUpper.getSqrtRatioAtTick();
+            liquidity = LiquidityAmounts.getLiquidityForAmount0(
+                sqrtRatioAX96,
+                sqrtRatioBX96,
+                amount0Desired
+            );
+            outputAmount = LiquidityAmounts.getAmount1ForLiquidity(
+                sqrtRatioAX96,
+                sqrtRatioBX96,
+                liquidity
+            );
+        } else {
+            uint160 sqrtRatioAX96 = tickLower.getSqrtRatioAtTick();
+            uint160 sqrtRatioBX96 = tickUpper.getSqrtRatioAtTick();
+            liquidity = LiquidityAmounts.getLiquidityForAmount1(
+                sqrtRatioAX96,
+                sqrtRatioBX96,
+                amount1Desired
+            );
+            outputAmount = LiquidityAmounts.getAmount0ForLiquidity(
+                sqrtRatioAX96,
+                sqrtRatioBX96,
+                liquidity
+            );
+        }
+    }
+
     /// @notice Create a Uni v3 LP and limit order
     /// @param inputToken Token to sell
     /// @param outputToken Token to receive
     /// @param inputAmount Amount to sell
-    /// @param outputAmount Amount to receive if sold at the limit price
+    /// @param limitAmount Amount to receive if sold at the limit price
     /// @param fee Uni v3 pool fee tier
     /// @return tokenId Uni v3 Position Manger ID
     function createLimitOrder(
         address inputToken,
         address outputToken,
         uint256 inputAmount,
-        uint256 outputAmount,
+        uint256 limitAmount,
         uint24 fee
     ) external payable returns (uint256 tokenId) {
         bool isZeroForOne = inputToken < outputToken;
@@ -164,7 +237,7 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
             ) = calculateTickAmount(
                     IUniswapV3Pool(pool),
                     inputAmount,
-                    outputAmount,
+                    limitAmount,
                     isZeroForOne
                 );
             (tokenId, liquidity, , ) = mint(
@@ -202,7 +275,9 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
             isZeroForOne: isZeroForOne,
             completed: false,
             liquidity: liquidity,
-            upkeepID: upkeepID
+            upkeepID: upkeepID,
+            earned0: 0,
+            earned1: 0
         });
     }
 
@@ -223,9 +298,15 @@ contract LimitOrderChainlink is KeeperCompatibleInterface, UniV3Automan {
     }
 
     function closePosition(uint256 positionId, uint128 liquidity) internal {
+        (, uint256 amount0, uint256 amount1) = getLiquidityAmounts(positionId);
         decreaseLiquidity(positionId, liquidity, 0, 0);
-        collect(positionId);
-        orderInfo[positionId].completed = true;
+        (uint256 amountCollected0, uint256 amountCollected1) = collect(
+            positionId
+        );
+        LimitOrder storage order = orderInfo[positionId];
+        order.completed = true;
+        order.earned0 = uint128(amountCollected0 - amount0);
+        order.earned1 = uint128(amountCollected1 - amount1);
     }
 
     /**

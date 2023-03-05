@@ -47,7 +47,7 @@ const StyledConnectWallets = styled(ConnectWallets)`
   width: fit-content;
 `;
 
-export const LimitOrder = () => {
+export const RangeOrder = () => {
   
   const { disconnect } = useDisconnect();
   const { isConnected } = useAccount();
@@ -79,7 +79,7 @@ export const LimitOrder = () => {
       <SmoothList transitionDuration={1000} delay={100} visible={view}>
     <StyledBox>
       <StyledTitle>
-        UniV3 Limit Order
+        UniV3 Range Order
         {isConnected /*  @ts-ignore */ && (
           <StyledSMBtn onClick={disconnect}>Disconnect</StyledSMBtn>
         )}
@@ -88,7 +88,7 @@ export const LimitOrder = () => {
       <HR />
       {isConnected ? (
         <Wrapper>
-          <Swap limit/>
+          <Swap limit={false}/>
           <Positions />
         </Wrapper>
       ) : (

@@ -1,4 +1,5 @@
 import { LimitOrder } from "./LimitOrder";
+import { RangeOrder } from "./RangeOrder";
 import styled from "styled-components";
 import Wallet from "@/components/Wallet/wallets";
 import { productsList } from "./productsLisr";
@@ -26,7 +27,7 @@ export const Home = () => {
   const page1 = useRef<null | HTMLDivElement>(null);
   const page2 = useRef<null | HTMLDivElement>(null);
   const page3 = useRef<null | HTMLDivElement>(null);
-
+  const page4 = useRef<null | HTMLDivElement>(null);
   return (
     <Container>
       <Wrapper1
@@ -43,9 +44,8 @@ export const Home = () => {
       >
         <Title />
       </Wrapper1>
-      <Wrapper2
-        ref={page2}
-        onClick={() =>
+      <Wrapper2 ref={page2}>
+        <Products products={productsList} goto3={() =>
           page3 &&
           page3.current &&
           page3.current.scrollIntoView({
@@ -53,11 +53,21 @@ export const Home = () => {
             block: "end",
             inline: "nearest",
           })
-        }
-      >
-        <Products products={productsList} />
+        } goto4={() =>
+          page4 &&
+          page4.current &&
+          page4.current.scrollIntoView({
+            behavior: "smooth",
+            block: "end",
+            inline: "nearest",
+          })
+        }/>
       </Wrapper2>
       <Wrapper2 ref={page3}>
+        {/* <Wallet/> */}
+        <RangeOrder />
+      </Wrapper2>
+      <Wrapper2 ref={page4}>
         {/* <Wallet/> */}
         <LimitOrder />
       </Wrapper2>

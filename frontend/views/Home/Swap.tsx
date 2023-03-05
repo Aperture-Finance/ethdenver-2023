@@ -31,10 +31,18 @@ const Grid = styled.div`
 const StyledArrow = styled(Arrow)`
   width: 20px;
   height: 20px;
-  margin: 0 12px;
+  margin: 0 16px 0 8px;
 `;
 
-export const Swap = () => {
+const Box = styled.div`
+  border-radius: 16px;
+  border: 1px solid ${({ theme }) => theme.colors.gray2};
+  background: ${({ theme }) => theme.colors.gray};
+  margin-right: 8px;
+  padding: 16px;
+  white-space: nowrap;
+`
+export const Swap = (props:any) => {
   const [tokenA, setTokenA] = useState<Token | null>(null);
   const [tokenB, setTokenB] = useState<Token | null>(null);
   const [ratio, setRatio] = useState<string | null>(null);
@@ -53,23 +61,25 @@ export const Swap = () => {
   
   return (
     <Wrapper>
-      <Subtitle>Deposit:</Subtitle>
+      <Subtitle>Pay with:</Subtitle>
       <Dropdown
         key="deposit-dropdown"
         tokenList={TokenList}
         onSelect={(token: Token) => setTokenA(token)}
       />
-      <Subtitle>Swap:</Subtitle>
+      <Subtitle>Receive:</Subtitle>
       <Dropdown
         key="swap-dropdown"
         tokenList={TokenList2}
         onSelect={(token: Token) => setTokenB(token)}
       />
       <br />
-      <Subtitle>Swap Ratio:</Subtitle>
-      <Grid>
-        <Title>1 {tokenA?.ticker ?? "Token"}</Title> {/*@ts-ignore*/}
-        <StyledArrow />
+      {props.limit?<Subtitle>Target Price:</Subtitle>:
+      <Subtitle>Upper Tick Price:</Subtitle>}
+      <Grid> {/* @ts-ignore */}
+        {/* {props.limit&&<Title style={{whiteSpace: "nowrap"}}>1 {tokenA?.ticker ?? "Token"} </Title> }@ts-ignore */}
+        {!props.limit&& <Box>4.023 {tokenB?.ticker ?? "Token"}</Box>}
+        {!props.limit&&<StyledArrow />}
         <TextInput
           id="text-input"
           placeholder="0"

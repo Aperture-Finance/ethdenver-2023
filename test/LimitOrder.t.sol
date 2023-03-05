@@ -88,6 +88,7 @@ contract LimitOrder is Test {
     }
 
     function testUpkeep() public {
+        // To sell tokenB higher
         uint256 tokenId = createLimitOrder(
             address(tokenB),
             address(tokenA),
@@ -105,8 +106,13 @@ contract LimitOrder is Test {
             uint160(4295128740),
             new bytes(0)
         );
+        // Trigger limit order
         LO.performUpkeep(abi.encode(tokenId));
         vm.expectRevert();
         LO.performUpkeep(abi.encode(tokenId));
+        UniV3Automan.PositionInfo memory info = LO.getPositionInfo(tokenId);
+        console2.log("Liquidity %d", uint256(info.liquidity));
+        console2.log("Token 0 earned %d", uint256(info.earned0));
+        console2.log("Token 1 earned %d", uint256(info.earned1));
     }
 }
