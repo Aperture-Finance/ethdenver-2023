@@ -27,6 +27,9 @@ contract UniV3Automan is IERC721Receiver {
         // Initial liquidity
         uint128 liquidity;
         uint256 upkeepID;
+        // Trading fees earned
+        uint128 earned0;
+        uint128 earned1;
     }
 
     // Position id to limit order mapping
@@ -93,29 +96,41 @@ contract UniV3Automan is IERC721Receiver {
         uint256 amount0;
         uint256 amount1;
         uint256 desiredAmount;
+        uint128 earned0;
+        uint128 earned1;
     }
 
-    function getPositionInfo(
-        uint256 positionId
-    ) public view returns (PositionInfo memory posInfo) {
-        posInfo.positionId = positionId;
-        LimitOrder storage order = orderInfo[positionId];
-        posInfo.owner = order.owner;
-        posInfo.isZeroForOne = order.isZeroForOne;
-        posInfo.completed = order.completed;
-        posInfo.upkeepID = order.upkeepID;
-        uint128 liquidity = order.liquidity;
-        posInfo.liquidity = liquidity;
+    /// @dev To avoid "stack too deep"
+    function expandPositionInfo(PositionInfo memory posInfo) internal view {
         (
             posInfo.token0,
             posInfo.token1,
             posInfo.fee,
             posInfo.tickLower,
             posInfo.tickUpper,
-            ,
-            ,
+            posInfo.liquidity,
+            posInfo.earned0,
+            posInfo.earned1
+        ) = _positions(posInfo.positionId);
+    }
 
-        ) = _positions(positionId);
+    function getPositionInfo(
+        uint256 positionId
+    ) public view returns (PositionInfo memory posInfo) {
+        LimitOrder storage order = orderInfo[positionId];
+        posInfo.positionId = positionId;
+        posInfo.owner = order.owner;
+        posInfo.isZeroForOne = order.isZeroForOne;
+        posInfo.completed = order.completed;
+        posInfo.upkeepID = order.upkeepID;
+        expandPositionInfo(posInfo);
+
+        if (posInfo.completed) {
+            posInfo.earned0 = order.earned0;
+            posInfo.earned1 = order.earned1;
+            // Use initial liquidity
+            posInfo.liquidity = order.liquidity;
+        }
         address pool = Utils.computePoolAddress(
             factory,
             posInfo.token0,
@@ -132,19 +147,19 @@ contract UniV3Automan is IERC721Receiver {
                 sqrtPriceX96,
                 sqrtLowerPriceX96,
                 sqrtUpperPriceX96,
-                liquidity
+                posInfo.liquidity
             );
         if (posInfo.isZeroForOne) {
             posInfo.desiredAmount = LiquidityAmounts.getAmount1ForLiquidity(
                 sqrtLowerPriceX96,
                 sqrtUpperPriceX96,
-                liquidity
+                posInfo.liquidity
             );
         } else {
             posInfo.desiredAmount = LiquidityAmounts.getAmount0ForLiquidity(
                 sqrtLowerPriceX96,
                 sqrtUpperPriceX96,
-                liquidity
+                posInfo.liquidity
             );
         }
     }
@@ -282,8 +297,7 @@ contract UniV3Automan is IERC721Receiver {
         uint256 amount0Desired,
         uint256 amount1Desired
     )
-        public
-        payable
+        internal
         returns (
             uint256 tokenId,
             uint128 liquidity,
@@ -328,11 +342,7 @@ contract UniV3Automan is IERC721Receiver {
         uint256 tokenId,
         uint256 amount0Desired,
         uint256 amount1Desired
-    )
-        public
-        payable
-        returns (uint128 liquidity, uint256 amount0, uint256 amount1)
-    {
+    ) internal returns (uint128 liquidity, uint256 amount0, uint256 amount1) {
         (address token0, address token1, , , , , , ) = _positions(tokenId);
         transferAndApprove(token0, token1, amount0Desired, amount1Desired);
         (liquidity, amount0, amount1) = NFPM.increaseLiquidity{
@@ -369,7 +379,7 @@ contract UniV3Automan is IERC721Receiver {
         uint128 liquidity,
         uint256 amount0Min,
         uint256 amount1Min
-    ) public returns (uint256 amount0, uint256 amount1) {
+    ) internal returns (uint256 amount0, uint256 amount1) {
         return
             NFPM.decreaseLiquidity(
                 INonfungiblePositionManager.DecreaseLiquidityParams({
