@@ -25,7 +25,7 @@ export const productsList = [
     {
       networkIcon: <EthereumIcon style={styles} />,
       title: "Univ3: Limit Order",
-      description: "Single Tick, No Slippage, No Fees ⭐",
+      description: "Target An Average Price, Earn the Fees (Don't Pay Them >:) ⭐",
     },
     // {
     //   networkIcon: <EthereumIcon style={styles} />,
