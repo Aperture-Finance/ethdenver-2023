@@ -4,6 +4,7 @@ import {
   DefenderRelayProvider,
 } from "defender-relay-client/lib/ethers";
 import { Contract, ethers } from "ethers";
+import axios from 'axios';
 
 const KEEPER_ABI = [
   {
@@ -25,6 +26,10 @@ const KEEPER_ABI = [
   },
 ];
 
+const tenderlyUser = "Aperture";
+const tenderlyProject = "project";
+const tenderlyKey = ""; // Read this from dotenv.
+
 exports.main = async function (signer: DefenderRelaySigner) {
   const keeper = new Contract(
     "0x48F67Cc3D88F051491F51E4975E531ecE00d6e97",
@@ -36,7 +41,42 @@ exports.main = async function (signer: DefenderRelaySigner) {
     ["bytes"],
     [positionId]
   );
+
+  const unsignedTx = await keeper.populateTransaction.checkUpkeep(encodedPositionId);
+  const rawData = unsignedTx.data;
+  console.log(`raw data: ${rawData}`);
+
+  // const resp = await axios.post(
+  //   `https://api.tenderly.co/api/v1/account/${tenderlyUser}/project/${tenderlyProject}/simulate`,
+  //   // the transaction
+  //   {
+  //     /* Simulation Configuration */
+  //     save: false, // if true simulation is saved and shows up in the dashboard
+  //     save_if_fails: false, // if true, reverting simulations show up in the dashboard
+  //     simulation_type: 'quick', // full or quick (full is default)
+
+  //     network_id: '80001', // network to simulate on
+
+  //     /* Standard EVM Transaction object */
+  //     from: '0x8F826f2ed5eaf1B53A478ed3236D234122FE8312',
+  //     to: '0x48F67Cc3D88F051491F51E4975E531ecE00d6e97',
+  //     input: rawData,
+  //     gas: 8000000,
+  //     gas_price: 0,
+  //     value: 0,
+  //   },
+  //   {
+  //     headers: {
+  //       'X-Access-Key': tenderlyKey as string,
+  //     },
+  //   }
+  // );
+  // console.log("Simulation status from tenderly");
+  // console.log(resp.data.simulation.status);
+
+  // if (resp.data.simulation.status) {
   const checkUpkeep = await keeper.checkUpkeep(encodedPositionId);
+  // } // Uncomment this part to enable Tenderly.
   console.log("checkUpkeep response: ");
   console.log(checkUpkeep);
   if (checkUpkeep.upkeepNeeded) {
