@@ -5,9 +5,6 @@ import { dark, light, UIKitProvider } from "@aperture/uikit";
 import { SWRConfig } from "swr";
 import { GlobalStyle } from "@/GlobalStyle";
 
-// import { SpectralProvider } from "@spectral-finance/spectral-modal";
-// import "@spectral-finance/spectral-modal/dist/esm/styles/Icon.css";
-
 const StyledUIKitProvider: React.FC<React.PropsWithChildren> = ({
   children,
   ...props
