@@ -121,6 +121,7 @@ const PositionCard: React.FC<PositionCardProps> = ({
   const uri = window.atob(nft.replace('data:application/json;base64,', ''));
   const safeURL = new URL(JSON.parse(uri).image);
   
+  // console.log(position)
   return (
     <StyledBox>
       <span>
@@ -156,6 +157,8 @@ const PositionCard: React.FC<PositionCardProps> = ({
           </>
         )}
       </StyledButton>
+      <br/>
+      <StyledSMBTN>Earned {utils.formatEther(position.earned0)} WETH {utils.formatEther(position.earned1)} USDC</StyledSMBTN>
       </span>
       <div>
         <StyledImg src={safeURL.href}/>
