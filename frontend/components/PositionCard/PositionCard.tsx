@@ -114,7 +114,7 @@ const PositionCard: React.FC<PositionCardProps> = ({
     args: [position.positionId],
   });
   const { write: withdraw } = useContractWrite(config);
-  const progress = parseFloat(utils.formatEther(position[position.isZeroForOne?'amount1':'amount0'])) / parseFloat(utils.formatEther(position.desiredAmount))
+  const progress = parseFloat(utils.formatEther(position[position.isZeroForOne?'amount1':'amount0'])) / parseFloat(utils.formatEther(position.desiredAmount)) * 100
   const amount0 = utils.formatEther(position[position.isZeroForOne?'amount0':'amount1'])
   const amount1 = utils.formatEther(position.desiredAmount)
 
