@@ -3,7 +3,7 @@ import { WagmiConfig } from "wagmi";
 import { client } from "@/utils/wagmi";
 import { dark, light, UIKitProvider } from "@aperture/uikit";
 import { SWRConfig } from "swr";
-import { GlobalStyle } from "@/GlobalStyle";
+import { GlobalStyle } from "@/globalStyle";
 
 const StyledUIKitProvider: React.FC<React.PropsWithChildren> = ({
   children,
