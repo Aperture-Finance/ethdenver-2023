@@ -88,7 +88,7 @@ export const LimitOrder = () => {
       <HR />
       {isConnected ? (
         <Wrapper>
-          <Swap />
+          <Swap limit/>
           <Positions />
         </Wrapper>
       ) : (

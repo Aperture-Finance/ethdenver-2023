@@ -34,7 +34,7 @@ const StyledArrow = styled(Arrow)`
   margin: 0 12px;
 `;
 
-export const Swap = () => {
+export const Swap = (props:any) => {
   const [tokenA, setTokenA] = useState<Token | null>(null);
   const [tokenB, setTokenB] = useState<Token | null>(null);
   const [ratio, setRatio] = useState<string | null>(null);
@@ -66,7 +66,8 @@ export const Swap = () => {
         onSelect={(token: Token) => setTokenB(token)}
       />
       <br />
-      <Subtitle>Target Average Price:</Subtitle>
+      {props.limit?<Subtitle>Target Price:</Subtitle>:
+      <Subtitle>Upper Tick Price:</Subtitle>}
       <Grid>
         <Title>1 {tokenA?.ticker ?? "Token"}</Title> {/*@ts-ignore*/}
         <StyledArrow />

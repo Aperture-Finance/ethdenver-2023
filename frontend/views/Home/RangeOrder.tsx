@@ -88,7 +88,7 @@ export const RangeOrder = () => {
       <HR />
       {isConnected ? (
         <Wrapper>
-          <Swap />
+          <Swap limit={false}/>
           <Positions />
         </Wrapper>
       ) : (
