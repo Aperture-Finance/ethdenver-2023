@@ -1,7 +1,7 @@
 {
-  "name": "polygon-box",
+  "name": "revenue_generating_limit_order",
   "version": "1.0.0",
-  "description": "A sample Truffle project that allows developers to deploy to the Polygon Matic PoS chain",
+  "description": "Leveraging single-sided liquidity on CLMM DEX's for better swaps, Aperture brings you the first-ever revenue-generating limit (and range) orders for token swaps on Polygon! You earn extra trade fees for getting tokens at your ideal price!",
   "main": "truffle-config.js",
   "directories": {
     "test": "test"
@@ -12,6 +12,10 @@
     "compile:polygon": "truffle compile --config=truffle-config.polygon.js",
     "migrate:polygon": "truffle migrate --config=truffle-config.polygon.js --network=polygon_infura_testnet",
     "verify:polygon": "truffle run verify LimitOrderChainlink --config=truffle-config.polygon.js --network=polygon_infura_testnet",
+    "test:arbitrum": "truffle test --config=truffle-config.arbitrum.js --network=arbitrum_testnet",
+    "compile:arbitrum": "truffle compile --config=truffle-config.arbitrum.js",
+    "migrate:arbitrum": "truffle migrate --config=truffle-config.arbitrum.js --network=arbitrum_testnet",
+    "verify:arbitrum": "truffle run verify LimitOrderChainlink --config=truffle-config.arbitrum.js --network=arbitrum_testnet",
     "prettier": "prettier -w {contracts,test}/**/*.{js,ts,sol}"
   },
   "repository": {
