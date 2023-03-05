@@ -20,12 +20,12 @@ export const productsList = [
     {
       networkIcon: <EthereumIcon style={styles} />,
       title: "Univ3: Range Order",
-      description: "i cant write shit, pls help me",
+      description: "Target An Average Price, You EARN The Fees 💕",
     },
     {
       networkIcon: <EthereumIcon style={styles} />,
       title: "Univ3: Limit Order",
-      description: "i cant write shit, pls help me",
+      description: "Single Tick, No Slippage, No Fees ⭐",
     },
     // {
     //   networkIcon: <EthereumIcon style={styles} />,

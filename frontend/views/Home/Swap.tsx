@@ -53,26 +53,26 @@ export const Swap = () => {
   
   return (
     <Wrapper>
-      <Subtitle>Deposit:</Subtitle>
+      <Subtitle>Pay with:</Subtitle>
       <Dropdown
         key="deposit-dropdown"
         tokenList={TokenList}
         onSelect={(token: Token) => setTokenA(token)}
       />
-      <Subtitle>Swap:</Subtitle>
+      <Subtitle>Receive:</Subtitle>
       <Dropdown
         key="swap-dropdown"
         tokenList={TokenList2}
         onSelect={(token: Token) => setTokenB(token)}
       />
       <br />
-      <Subtitle>Swap Ratio:</Subtitle>
+      <Subtitle>Target Average Price:</Subtitle>
       <Grid>
         <Title>1 {tokenA?.ticker ?? "Token"}</Title> {/*@ts-ignore*/}
         <StyledArrow />
         <TextInput
           id="text-input"
-          placeholder="0"
+          placeholder="ave: 10"
           onChange={(value: string) => setRatio(value)}
           onError={(text: string) => text === "Error"}
           notes={tokenB?.ticker ?? "Token"}
