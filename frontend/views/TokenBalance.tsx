@@ -25,15 +25,14 @@ export const TokensBalance = () => {
 };
 
 const TokenBalance = (props: { ticker: string }) => {
-  const { chain } = useNetwork();
   const { ticker } = props;
 
-  if (chain && chain.id && ERC20TokenMap[ticker]) {
-    const address = getTokenAddress(ticker, chain.id);
-    const contractAddress = getstrategyAddress("limitOrder", chain.id);
+  if ( ERC20TokenMap[ticker]) {
+    const address = getTokenAddress(ticker, 80001);
+    const contractAddress = getstrategyAddress("limitOrder", 80001);
     const { data, isLoading, error } = useFetchUserToken(
-      getTokenAddress(ticker, chain.id),
-      getstrategyAddress("limitOrder", chain.id)
+      getTokenAddress(ticker, 80001),
+      getstrategyAddress("limitOrder", 80001)
     );
 
     const { config } = usePrepareContractWrite({

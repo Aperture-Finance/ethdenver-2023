@@ -13,16 +13,15 @@ export function useFetchUserTokens(
   contractAddress: string
 ) {
   const { address: walletAddress, isConnected } = useAccount();
-  const { chain } = useNetwork();
 
   return useSWR(`useFetchUserTokens`, async () => {
-    if (isConnected && chain && chain.id && walletAddress) {
-      const provider = createMulticallProvider(chain.id);
+    if (isConnected && walletAddress) {
+      const provider = createMulticallProvider(80001);
       return await Promise.all(
         Object.keys(ERC20TokenMap)
           .filter((key: string) => !ERC20TokenMap[key].native)
           .map(async (key: string) =>
-            getToken(provider, walletAddress, getTokenAddress(key, chain.id), contractAddress)
+            getToken(provider, walletAddress, getTokenAddress(key, 80001), contractAddress)
           )
       );
     }
@@ -48,8 +47,8 @@ export function useFetchUserToken(
   const { chain } = useNetwork();
 
   return useSWR(`token-${tokenAddress}`, () => {
-    if (isConnected && chain && chain.id && walletAddress) {
-      const provider = createMulticallProvider(chain.id);
+    if (isConnected && walletAddress) {
+      const provider = createMulticallProvider(80001);
       return getToken(provider, walletAddress, tokenAddress, contractAddress);
     }
   });

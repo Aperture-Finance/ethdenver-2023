@@ -15,8 +15,8 @@ export function useFetchUserPositions(
   const { isConnected, address } = useAccount();
   const { chain } = useNetwork();
   return useSWR(`useFetchUserPositions`, async () => {
-    if (isConnected && chain && chain.id ) {
-      const provider = createMulticallProvider(chain.id);
+    if (isConnected ) {
+      const provider = createMulticallProvider(80001);
       return getPositions(provider, contractAddress, address)
     }
     return [];

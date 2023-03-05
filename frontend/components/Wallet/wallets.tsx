@@ -20,7 +20,7 @@ const Wallet = () => {
     <div>
       {/* wallet connection */}
       <div>
-        <div>isConnected: {String(isConnected)}</div>
+        <div>isConnected: {String(isConnected)}{address}</div>
       </div>
       {isConnected && chain ? (
         <div>

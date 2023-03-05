@@ -16,8 +16,8 @@ export function useFetchCurrentPirce(
   const { chain } = useNetwork();
 
   return useSWR(`useFetchCurrentPirce`, async () => {
-    if (isConnected && chain && chain.id && walletAddress) {
-      const provider = createMulticallProvider(chain.id);
+    if (isConnected && walletAddress) {
+      const provider = createMulticallProvider(80001);
       return getCurrentPrice(provider)
     }
 })
