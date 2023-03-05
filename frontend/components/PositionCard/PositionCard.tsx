@@ -136,8 +136,8 @@ const PositionCard: React.FC<PositionCardProps> = ({
           <StyledSMBTN>{position.fee /10000}%</StyledSMBTN>
         </Flex>
         <span style={{ fontSize: "14px", opacity: "0.7" }}>
-          <Number>{numberParse(amount0)}</Number> 
-          {tokens[position.isZeroForOne?0:1].ticker} {"<->"} 
+          <Number>{numberParse(amount0)}</Number> {" "}
+          {tokens[position.isZeroForOne?0:1].ticker} {"<->"} {" "}
           <Number>{numberParse(amount1)}</Number>
           {" "}
           {tokens[position.isZeroForOne?1:0].ticker}
