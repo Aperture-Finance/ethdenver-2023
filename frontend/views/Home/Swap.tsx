@@ -31,9 +31,17 @@ const Grid = styled.div`
 const StyledArrow = styled(Arrow)`
   width: 20px;
   height: 20px;
-  margin: 0 12px;
+  margin: 0 16px 0 8px;
 `;
 
+const Box = styled.div`
+  border-radius: 16px;
+  border: 1px solid ${({ theme }) => theme.colors.gray2};
+  background: ${({ theme }) => theme.colors.gray};
+  margin-right: 8px;
+  padding: 16px;
+  white-space: nowrap;
+`
 export const Swap = (props:any) => {
   const [tokenA, setTokenA] = useState<Token | null>(null);
   const [tokenB, setTokenB] = useState<Token | null>(null);
@@ -68,12 +76,13 @@ export const Swap = (props:any) => {
       <br />
       {props.limit?<Subtitle>Target Price:</Subtitle>:
       <Subtitle>Upper Tick Price:</Subtitle>}
-      <Grid>
-        <Title>1 {tokenA?.ticker ?? "Token"}</Title> {/*@ts-ignore*/}
-        <StyledArrow />
+      <Grid> {/* @ts-ignore */}
+        {/* {props.limit&&<Title style={{whiteSpace: "nowrap"}}>1 {tokenA?.ticker ?? "Token"} </Title> }@ts-ignore */}
+        {!props.limit&& <Box>4.023 {tokenB?.ticker ?? "Token"}</Box>}
+        {!props.limit&&<StyledArrow />}
         <TextInput
           id="text-input"
-          placeholder="ave: 10"
+          placeholder="0"
           onChange={(value: string) => setRatio(value)}
           onError={(text: string) => text === "Error"}
           notes={tokenB?.ticker ?? "Token"}
