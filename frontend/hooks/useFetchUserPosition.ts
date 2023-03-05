@@ -27,7 +27,7 @@ export function useFetchUserPositions(
 async function getPositions(
   provider: providers.MulticallProvider,
   contractAddress: string,
-  userAddress: string
+  userAddress: `0x${string}` | undefined
 ) {
   // console.log("getPositions", contractAddress, userAddress);
   const contract = createMulticallContract(contractAddress, LimitOrderABI, provider); //to do

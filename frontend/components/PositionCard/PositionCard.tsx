@@ -149,9 +149,9 @@ const PositionCard: React.FC<PositionCardProps> = ({
             Tokens already sent to your wallet ;)
           </>
         ) : (
-          <>
-            Withdraw {(1 - parseFloat(progress)) * parseFloat(amount0)}{" "}
-            {tokens[0].ticker} and {parseFloat(progress) * parseFloat(amount1)}{" "}
+          <> 
+            Withdraw {(1 - progress) * parseFloat(amount0)}{" "}
+            {tokens[0].ticker} and {progress * parseFloat(amount1)}{" "}
             {tokens[1].ticker}
           </>
         )}
