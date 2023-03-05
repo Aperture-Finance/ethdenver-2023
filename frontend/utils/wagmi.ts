@@ -48,10 +48,10 @@ export const client = createClient({
     new MagicAuthConnector({
       options: {
         apiKey: "pk_live_0A5DA6E112CAD73C",
-        enableSMSLogin: true,
+        // enableSMSLogin: true,
         oauthOptions : {
           providers: ['facebook', 'google', 'twitter'],
-          callbackUrl: 'https://your-callback-url.com', //optional
+          callbackUrl: 'http://localhost:3000/', //optional
         }
       },
     }),

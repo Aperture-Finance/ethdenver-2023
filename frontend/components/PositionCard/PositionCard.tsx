@@ -121,6 +121,7 @@ const PositionCard: React.FC<PositionCardProps> = ({
   const uri = window.atob(nft.replace('data:application/json;base64,', ''));
   const safeURL = new URL(JSON.parse(uri).image);
   
+  // console.log(position)
   return (
     <StyledBox>
       <span>
@@ -135,8 +136,8 @@ const PositionCard: React.FC<PositionCardProps> = ({
           <StyledSMBTN>{position.fee /10000}%</StyledSMBTN>
         </Flex>
         <span style={{ fontSize: "14px", opacity: "0.7" }}>
-          <Number>{numberParse(amount0)}</Number> 
-          {tokens[position.isZeroForOne?0:1].ticker} {"<->"} 
+          <Number>{numberParse(amount0)}</Number> {" "}
+          {tokens[position.isZeroForOne?0:1].ticker} {"<->"} {" "}
           <Number>{numberParse(amount1)}</Number>
           {" "}
           {tokens[position.isZeroForOne?1:0].ticker}
@@ -156,6 +157,8 @@ const PositionCard: React.FC<PositionCardProps> = ({
           </>
         )}
       </StyledButton>
+      <br/>
+      <StyledSMBTN>Earned {utils.formatEther(position.earned0)} WETH {utils.formatEther(position.earned1)} USDC</StyledSMBTN>
       </span>
       <div>
         <StyledImg src={safeURL.href}/>
